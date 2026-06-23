@@ -1,0 +1,23 @@
+.root {
+  --tracks: repeat(14, 1fr);
+  --border: 1px solid #000;
+
+  /* Layout */
+  display: grid;
+  grid-template-columns: var(--tracks);
+  grid-template-rows: var(--tracks);
+
+  /* Box model */
+  aspect-ratio: 1;
+  border-right: var(--border);
+  border-bottom: var(--border);
+
+  /* Visual */
+  background: #dcb35c;
+}
+
+.cell {
+  /* Box model */
+  border-top: var(--border);
+  border-left: var(--border);
+}

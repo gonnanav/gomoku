@@ -1,0 +1,19 @@
+.root {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  /* Box model */
+  height: 100dvh;
+}
+
+.board {
+  /* Layout */
+  flex: none;
+
+  /* Box model */
+  width: 100%;
+  max-width: 650px;
+}
