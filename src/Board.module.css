@@ -1,6 +1,6 @@
 .root {
-  --tracks: repeat(14, 1fr);
-  --border: 1px solid #000;
+  --tracks: repeat(15, 1fr);
+  --line-thickness: 1px;
 
   /* Layout */
   display: grid;
@@ -9,15 +9,75 @@
 
   /* Box model */
   aspect-ratio: 1;
-  border-right: var(--border);
-  border-bottom: var(--border);
 
   /* Visual */
   background: #dcb35c;
 }
 
-.cell {
+.intersection {
+  /* Layout */
+  position: relative;
+}
+
+/* Lines run through each element's center, so a stone placed there sits on the intersection. */
+.intersection::before,
+.intersection::after {
+  /* Layout */
+  position: absolute;
+
+  /* Visual */
+  content: '';
+  background: #000;
+}
+
+/* Horizontal line */
+.intersection::before {
+  /* Layout */
+  top: 50%;
+  right: 0;
+  left: 0;
+
   /* Box model */
-  border-top: var(--border);
-  border-left: var(--border);
+  height: var(--line-thickness);
+
+  /* Visual */
+  transform: translateY(-50%);
+}
+
+/* On the left and right columns, draw the horizontal line only toward the
+   center, so it stops at the edge intersection and doesn't stick out. */
+.edgeLeft::before {
+  /* Layout */
+  left: 50%;
+}
+
+.edgeRight::before {
+  /* Layout */
+  right: 50%;
+}
+
+/* Vertical line */
+.intersection::after {
+  /* Layout */
+  top: 0;
+  bottom: 0;
+  left: 50%;
+
+  /* Box model */
+  width: var(--line-thickness);
+
+  /* Visual */
+  transform: translateX(-50%);
+}
+
+/* On the top and bottom rows, draw the vertical line only toward the
+   center, so it stops at the edge intersection and doesn't stick out. */
+.edgeTop::after {
+  /* Layout */
+  top: 50%;
+}
+
+.edgeBottom::after {
+  /* Layout */
+  bottom: 50%;
 }

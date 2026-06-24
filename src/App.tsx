@@ -1,4 +1,4 @@
-import Board from './Board.tsx'
+import Board from './Board.tsx';
 import classes from './App.module.css';
 
 function App() {
@@ -6,7 +6,7 @@ function App() {
     <div className={classes.root}>
       <Board className={classes.board} />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
