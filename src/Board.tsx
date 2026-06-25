@@ -2,42 +2,52 @@ import { useState, type PointerEvent } from 'react';
 import clsx from 'clsx';
 import classes from './Board.module.css';
 
+type Coordinate = { row: number; col: number };
+
 const size = 15; // intersections per side
 const intersections = size * size;
 const lastIndex = size - 1;
 
-const initialStones = new Set<number>();
+const initialStones = new Set<string>();
+
+function coordinateKey({ row, col }: Coordinate) {
+  return `${row},${col}`;
+}
+
+function coordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.row === b.row && a.col === b.col;
+}
 
 function Board() {
   const [stones, setStones] = useState(initialStones);
-  const [previewedStone, setPreviewedStone] = useState<number | null>(null);
+  const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
 
-  function isPlaced(i: number) {
-    return stones.has(i);
+  function isPlaced(coordinate: Coordinate) {
+    return stones.has(coordinateKey(coordinate));
   }
 
-  function isPreviewed(i: number) {
-    return previewedStone === i;
+  function isPreviewed(coordinate: Coordinate) {
+    return previewedStone !== null && coordinatesEqual(previewedStone, coordinate);
   }
 
   // Clicking previews an intersection; clicking the same one again places a stone.
   // On desktop the pointer hover previews, so a single click places.
-  function previewOrPlace(i: number) {
-    if (isPlaced(i)) {
+  function previewOrPlace(coordinate: Coordinate) {
+    if (isPlaced(coordinate)) {
       setPreviewedStone(null);
-    } else if (isPreviewed(i)) {
-      setStones((prev) => new Set(prev).add(i));
+    } else if (isPreviewed(coordinate)) {
+      setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
       setPreviewedStone(null);
     } else {
-      setPreviewedStone(i);
+      setPreviewedStone(coordinate);
     }
   }
 
   // Only a mouse hovers, so this previews on desktop without affecting touch taps.
-  function handleIntersectionPointerEnter(event: PointerEvent, i: number) {
+  function handleIntersectionPointerEnter(event: PointerEvent, coordinate: Coordinate) {
     if (event.pointerType !== 'mouse') return;
 
-    setPreviewedStone(isPlaced(i) ? null : i);
+    setPreviewedStone(isPlaced(coordinate) ? null : coordinate);
   }
 
   function handleBoardPointerLeave(event: PointerEvent) {
@@ -52,28 +62,29 @@ function Board() {
         {Array.from({ length: intersections }, (_, i) => {
           const row = Math.floor(i / size);
           const col = i % size;
+          const coordinate = { row, col };
 
           const edgeTop = row === 0;
           const edgeRight = col === lastIndex;
           const edgeBottom = row === lastIndex;
           const edgeLeft = col === 0;
 
-          const showStone = isPlaced(i) || isPreviewed(i);
+          const showStone = isPlaced(coordinate) || isPreviewed(coordinate);
 
           return (
             <div
-              key={i}
+              key={coordinateKey(coordinate)}
               className={clsx(classes.intersection, {
                 [classes.edgeTop]: edgeTop,
                 [classes.edgeRight]: edgeRight,
                 [classes.edgeBottom]: edgeBottom,
                 [classes.edgeLeft]: edgeLeft,
               })}
-              onPointerEnter={(event) => handleIntersectionPointerEnter(event, i)}
-              onClick={() => previewOrPlace(i)}
+              onPointerEnter={(event) => handleIntersectionPointerEnter(event, coordinate)}
+              onClick={() => previewOrPlace(coordinate)}
             >
               {showStone && (
-                <div className={clsx(classes.stone, { [classes.preview]: isPreviewed(i) })} />
+                <div className={clsx(classes.stone, { [classes.preview]: isPreviewed(coordinate) })} />
               )}
             </div>
           );
