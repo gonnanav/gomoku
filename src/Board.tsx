@@ -18,7 +18,7 @@ function coordinatesEqual(a: Coordinate, b: Coordinate) {
   return a.row === b.row && a.col === b.col;
 }
 
-function Board() {
+function useBoard() {
   const [stones, setStones] = useState(initialStones);
   const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
 
@@ -30,16 +30,34 @@ function Board() {
     return previewedStone !== null && coordinatesEqual(previewedStone, coordinate);
   }
 
+  function placeStone(coordinate: Coordinate) {
+    setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
+    setPreviewedStone(null);
+  }
+
+  function previewStone(coordinate: Coordinate) {
+    setPreviewedStone(coordinate);
+  }
+
+  function clearPreview() {
+    setPreviewedStone(null);
+  }
+
+  return { isPlaced, isPreviewed, placeStone, previewStone, clearPreview };
+}
+
+function Board() {
+  const { isPlaced, isPreviewed, placeStone, previewStone, clearPreview } = useBoard();
+
   // Clicking previews an intersection; clicking the same one again places a stone.
   // On desktop the pointer hover previews, so a single click places.
   function previewOrPlace(coordinate: Coordinate) {
     if (isPlaced(coordinate)) {
-      setPreviewedStone(null);
+      clearPreview();
     } else if (isPreviewed(coordinate)) {
-      setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
-      setPreviewedStone(null);
+      placeStone(coordinate);
     } else {
-      setPreviewedStone(coordinate);
+      previewStone(coordinate);
     }
   }
 
@@ -47,13 +65,17 @@ function Board() {
   function handleIntersectionPointerEnter(event: PointerEvent, coordinate: Coordinate) {
     if (event.pointerType !== 'mouse') return;
 
-    setPreviewedStone(isPlaced(coordinate) ? null : coordinate);
+    if (isPlaced(coordinate)) {
+      clearPreview();
+    } else {
+      previewStone(coordinate);
+    }
   }
 
   function handleBoardPointerLeave(event: PointerEvent) {
     if (event.pointerType !== 'mouse') return;
 
-    setPreviewedStone(null);
+    clearPreview();
   }
 
   return (
