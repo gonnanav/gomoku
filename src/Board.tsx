@@ -10,43 +10,7 @@ const lastIndex = size - 1;
 
 const initialStones = new Set<string>();
 
-function coordinateKey({ row, col }: Coordinate) {
-  return `${row},${col}`;
-}
-
-function coordinatesEqual(a: Coordinate, b: Coordinate) {
-  return a.row === b.row && a.col === b.col;
-}
-
-function useBoard() {
-  const [stones, setStones] = useState(initialStones);
-  const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
-
-  function isPlaced(coordinate: Coordinate) {
-    return stones.has(coordinateKey(coordinate));
-  }
-
-  function isPreviewed(coordinate: Coordinate) {
-    return previewedStone !== null && coordinatesEqual(previewedStone, coordinate);
-  }
-
-  function placeStone(coordinate: Coordinate) {
-    setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
-    setPreviewedStone(null);
-  }
-
-  function previewStone(coordinate: Coordinate) {
-    setPreviewedStone(coordinate);
-  }
-
-  function clearPreview() {
-    setPreviewedStone(null);
-  }
-
-  return { isPlaced, isPreviewed, placeStone, previewStone, clearPreview };
-}
-
-function Board() {
+export function Board() {
   const { isPlaced, isPreviewed, placeStone, previewStone, clearPreview } = useBoard();
 
   // Clicking previews an intersection; clicking the same one again places a stone.
@@ -120,4 +84,38 @@ function Board() {
   );
 }
 
-export default Board;
+function useBoard() {
+  const [stones, setStones] = useState(initialStones);
+  const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
+
+  function isPlaced(coordinate: Coordinate) {
+    return stones.has(coordinateKey(coordinate));
+  }
+
+  function isPreviewed(coordinate: Coordinate) {
+    return previewedStone !== null && coordinatesEqual(previewedStone, coordinate);
+  }
+
+  function placeStone(coordinate: Coordinate) {
+    setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
+    setPreviewedStone(null);
+  }
+
+  function previewStone(coordinate: Coordinate) {
+    setPreviewedStone(coordinate);
+  }
+
+  function clearPreview() {
+    setPreviewedStone(null);
+  }
+
+  return { isPlaced, isPreviewed, placeStone, previewStone, clearPreview };
+}
+
+function coordinateKey({ row, col }: Coordinate) {
+  return `${row},${col}`;
+}
+
+function coordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.row === b.row && a.col === b.col;
+}
