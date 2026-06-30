@@ -8,28 +8,6 @@
   cursor: pointer;
 }
 
-.stone {
-  /* Layout */
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 1;
-
-  /* Box model */
-  width: 90%;
-  height: 90%;
-  border-radius: 50%;
-
-  /* Visual */
-  background: #000;
-  transform: translate(-50%, -50%);
-
-  &.preview {
-    /* Visual */
-    opacity: 0.3;
-  }
-}
-
 /* Lines run through each element's center, so a stone placed there sits on the intersection. */
 .root::before,
 .root::after {
@@ -91,4 +69,46 @@
 .edgeBottom::after {
   /* Layout */
   bottom: 50%;
+}
+
+.stone {
+  --preview-opacity: 0.3;
+
+  /* Layout */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+
+  /* Box model */
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+
+  /* Visual */
+  background: #000;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+
+  &.previewed {
+    /* Visual */
+    opacity: var(--preview-opacity);
+  }
+
+  &.placed {
+    /* Visual */
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) {
+  .root:hover .stone:not(.placed) {
+    /* Visual */
+    opacity: var(--preview-opacity);
+  }
+}
+
+.root:focus-visible .stone:not(.placed) {
+  /* Visual */
+  opacity: var(--preview-opacity);
 }

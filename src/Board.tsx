@@ -1,4 +1,4 @@
-import { useState, type PointerEvent } from 'react';
+import { useState } from 'react';
 import { Intersection } from './Intersection.tsx';
 import { type Coordinate, type IntersectionState, boardSize } from './board.ts';
 import classes from './Board.module.css';
@@ -7,41 +7,20 @@ const intersections = boardSize * boardSize;
 const initialStones = new Set<string>();
 
 export function Board() {
-  const { stateAt, placeStone, previewStone, clearPreview } = useBoard();
+  const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
 
-  // Clicking previews an intersection; clicking the same one again places a stone.
-  // On desktop the pointer hover previews, so a single click places.
-  function previewOrPlace(coordinate: Coordinate) {
-    const state = stateAt(coordinate);
-    if (state === 'black') {
-      clearPreview();
-    } else if (state === 'preview') {
+  // On mobile (no hover), first tap previews and second tap places.
+  function handleIntersectionClick(coordinate: Coordinate) {
+    if (window.matchMedia('(hover: hover)').matches) {
       placeStone(coordinate);
     } else {
-      previewStone(coordinate);
+      previewOrPlaceStone(coordinate);
     }
-  }
-
-  // Only a mouse hovers, so this previews on desktop without affecting touch taps.
-  function handleIntersectionPointerEnter(event: PointerEvent, coordinate: Coordinate) {
-    if (event.pointerType !== 'mouse') return;
-
-    if (stateAt(coordinate) === 'black') {
-      clearPreview();
-    } else {
-      previewStone(coordinate);
-    }
-  }
-
-  function handleBoardPointerLeave(event: PointerEvent) {
-    if (event.pointerType !== 'mouse') return;
-
-    clearPreview();
   }
 
   return (
     <div className={classes.root}>
-      <div className={classes.board} onPointerLeave={handleBoardPointerLeave}>
+      <div className={classes.board}>
         {Array.from({ length: intersections }, (_, i) => {
           const row = Math.floor(i / boardSize);
           const col = i % boardSize;
@@ -52,8 +31,7 @@ export function Board() {
               key={coordinateKey(coordinate)}
               coordinate={coordinate}
               state={stateAt(coordinate)}
-              onPointerEnter={handleIntersectionPointerEnter}
-              onClick={previewOrPlace}
+              onClick={handleIntersectionClick}
             />
           );
         })}
@@ -74,18 +52,18 @@ function useBoard() {
 
   function placeStone(coordinate: Coordinate) {
     setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
-    setPreviewedStone(null);
   }
 
-  function previewStone(coordinate: Coordinate) {
-    setPreviewedStone(coordinate);
+  function previewOrPlaceStone(coordinate: Coordinate) {
+    if (stateAt(coordinate) === 'preview') {
+      placeStone(coordinate);
+      setPreviewedStone(null);
+    } else {
+      setPreviewedStone(coordinate);
+    }
   }
 
-  function clearPreview() {
-    setPreviewedStone(null);
-  }
-
-  return { stateAt, placeStone, previewStone, clearPreview };
+  return { stateAt, placeStone, previewOrPlaceStone };
 }
 
 function coordinateKey({ row, col }: Coordinate) {
