@@ -6,16 +6,16 @@ import classes from './Intersection.module.css';
 type IntersectionProps = {
   coordinate: Coordinate;
   state: IntersectionState;
+  tabIndex: number;
+  onFocus: (coordinate: Coordinate) => void;
   onKeyDown: (event: KeyboardEvent, coordinate: Coordinate) => void;
   onClick: (coordinate: Coordinate) => void;
 };
 
 const lastIndex = boardSize - 1;
-const centerIndex = Math.floor((boardSize - 1) / 2);
 
-export function Intersection({ coordinate, state, onKeyDown, onClick }: IntersectionProps) {
+export function Intersection({ coordinate, state, tabIndex, onFocus, onKeyDown, onClick }: IntersectionProps) {
   const { row, col } = coordinate;
-  const tabIndex = row === centerIndex && col === centerIndex ? 0 : -1;
 
   const edgeTop = row === 0;
   const edgeRight = col === lastIndex;
@@ -34,6 +34,7 @@ export function Intersection({ coordinate, state, onKeyDown, onClick }: Intersec
         [classes.edgeLeft]: edgeLeft,
       })}
       tabIndex={tabIndex}
+      onFocus={() => onFocus(coordinate)}
       onKeyDown={(event) => onKeyDown(event, coordinate)}
       onClick={() => onClick(coordinate)}
     >

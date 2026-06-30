@@ -17,6 +17,17 @@ test('tab focuses the center intersection', async ({ page }) => {
   await expect(getIntersection(page, 7, 7)).toBeFocused();
 });
 
+test('tab returns to the last focused intersection', async ({ page }) => {
+  const intersection = getIntersection(page, 3, 3);
+  await intersection.focus();
+
+  await page.keyboard.press('Shift+Tab');
+  await expect(intersection).not.toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(intersection).toBeFocused();
+});
+
 for (const key of ['Enter', 'Space']) {
   test(`pressing ${key} on the focused intersection places a stone on it`, async ({ page }) => {
     const intersection = getIntersection(page, 7, 7);

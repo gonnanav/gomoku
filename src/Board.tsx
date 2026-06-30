@@ -5,9 +5,12 @@ import classes from './Board.module.css';
 
 const intersections = boardSize * boardSize;
 const initialStones = new Set<string>();
+const centerIndex = Math.floor((boardSize - 1) / 2);
+const centerIntersection: Coordinate = { row: centerIndex, col: centerIndex };
 
 export function Board() {
   const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
+  const [tabStop, setTabStop] = useState<Coordinate>(centerIntersection);
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -31,12 +34,15 @@ export function Board() {
           const row = Math.floor(i / boardSize);
           const col = i % boardSize;
           const coordinate = { row, col };
+          const tabIndex = coordinatesEqual(tabStop, coordinate) ? 0 : -1;
 
           return (
             <Intersection
               key={coordinateKey(coordinate)}
               coordinate={coordinate}
               state={stateAt(coordinate)}
+              tabIndex={tabIndex}
+              onFocus={setTabStop}
               onKeyDown={handleIntersectionKeyDown}
               onClick={handleIntersectionClick}
             />
