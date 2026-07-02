@@ -11,7 +11,7 @@ test('clicking an intersection places a black stone on it', async ({ page }) => 
   await expect(intersection).toHaveText('black');
 });
 
-test('tab focuses the center intersection', async ({ page }) => {
+test('tab focuses the center intersection by default', async ({ page }) => {
   await page.keyboard.press('Tab');
 
   await expect(getIntersection(page, 7, 7)).toBeFocused();
@@ -37,6 +37,22 @@ for (const key of ['Enter', 'Space']) {
     await expect(intersection).toHaveText('black');
   });
 }
+
+test('arrow keys navigate focus to adjacent intersections', async ({ page }) => {
+  await getIntersection(page, 7, 7).focus();
+
+  await page.keyboard.press('ArrowUp');
+  await expect(getIntersection(page, 6, 7)).toBeFocused();
+
+  await page.keyboard.press('ArrowDown');
+  await expect(getIntersection(page, 7, 7)).toBeFocused();
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(getIntersection(page, 7, 6)).toBeFocused();
+
+  await page.keyboard.press('ArrowRight');
+  await expect(getIntersection(page, 7, 7)).toBeFocused();
+});
 
 function getIntersection(page: Page, row: number, col: number) {
   return page.getByTestId(`intersection-${row}-${col}`);

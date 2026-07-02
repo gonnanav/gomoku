@@ -1,20 +1,27 @@
 import { type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { type Coordinate, type IntersectionState, boardSize } from './board.ts';
+import { type Coordinate, type IntersectionState, lastIndex } from './board.ts';
 import classes from './Intersection.module.css';
 
 type IntersectionProps = {
   coordinate: Coordinate;
   state: IntersectionState;
   tabIndex: number;
+  registerElement: (element: HTMLElement | null, coordinate: Coordinate) => void;
   onFocus: (coordinate: Coordinate) => void;
   onKeyDown: (event: KeyboardEvent, coordinate: Coordinate) => void;
   onClick: (coordinate: Coordinate) => void;
 };
 
-const lastIndex = boardSize - 1;
-
-export function Intersection({ coordinate, state, tabIndex, onFocus, onKeyDown, onClick }: IntersectionProps) {
+export function Intersection({
+  coordinate,
+  state,
+  tabIndex,
+  registerElement,
+  onFocus,
+  onKeyDown,
+  onClick,
+}: IntersectionProps) {
   const { row, col } = coordinate;
 
   const edgeTop = row === 0;
@@ -26,6 +33,7 @@ export function Intersection({ coordinate, state, tabIndex, onFocus, onKeyDown, 
 
   return (
     <div
+      ref={(element) => registerElement(element, coordinate)}
       data-testid={`intersection-${row}-${col}`}
       className={clsx(classes.root, {
         [classes.edgeTop]: edgeTop,

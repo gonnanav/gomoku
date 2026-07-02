@@ -1,6 +1,6 @@
-import { useState, type KeyboardEvent } from 'react';
+import { useRef, useState, type KeyboardEvent } from 'react';
 import { Intersection } from './Intersection.tsx';
-import { type Coordinate, type IntersectionState, boardSize } from './board.ts';
+import { type Coordinate, type IntersectionState, boardSize, nextCoordinate } from './board.ts';
 import classes from './Board.module.css';
 
 const intersections = boardSize * boardSize;
@@ -11,11 +11,26 @@ const centerIntersection: Coordinate = { row: centerIndex, col: centerIndex };
 export function Board() {
   const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
   const [tabStop, setTabStop] = useState<Coordinate>(centerIntersection);
+  const intersectionsRef = useRef(new Map<string, HTMLElement>());
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    event.preventDefault();
-    placeStone(coordinate);
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      placeStone(coordinate);
+      return;
+    }
+
+    if (
+      event.key === 'ArrowUp' ||
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowLeft' ||
+      event.key === 'ArrowRight'
+    ) {
+      event.preventDefault();
+      const next = nextCoordinate(coordinate, event.key);
+      const nextElement = intersectionsRef.current.get(coordinateKey(next));
+      nextElement?.focus();
+    }
   }
 
   // On mobile (no hover), first tap previews and second tap places.
@@ -25,6 +40,11 @@ export function Board() {
     } else {
       previewOrPlaceStone(coordinate);
     }
+  }
+
+  function registerIntersection(element: HTMLElement | null, coordinate: Coordinate) {
+    if (!element) return;
+    intersectionsRef.current.set(coordinateKey(coordinate), element);
   }
 
   return (
@@ -42,6 +62,7 @@ export function Board() {
               coordinate={coordinate}
               state={stateAt(coordinate)}
               tabIndex={tabIndex}
+              registerElement={registerIntersection}
               onFocus={setTabStop}
               onKeyDown={handleIntersectionKeyDown}
               onClick={handleIntersectionClick}
