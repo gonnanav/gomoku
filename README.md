@@ -1,6 +1,6 @@
-# Infinite Gomoku
+# Gomoku
 
-Gomoku (five-in-a-row) on an infinite board. Built with React, TypeScript, and Vite.
+Gomoku (five-in-a-row) on a 15×15 board. Built with React, TypeScript, and Vite.
 
 ## Getting started
 

@@ -1,4 +1,4 @@
-# Infinite Gomoku
+# Gomoku
 
 ## Scripts
 
