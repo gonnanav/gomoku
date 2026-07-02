@@ -29,8 +29,6 @@ export function Intersection({
   const edgeBottom = row === lastIndex;
   const edgeLeft = col === 0;
 
-  const value = state === 'black' ? 'black' : 'empty';
-
   return (
     <div
       ref={(element) => registerElement(element, coordinate)}
@@ -46,7 +44,7 @@ export function Intersection({
       onKeyDown={(event) => onKeyDown(event, coordinate)}
       onClick={() => onClick(coordinate)}
     >
-      <span className="visually-hidden">{value}</span>
+      <span className="visually-hidden">{state}</span>
       <div
         aria-hidden
         className={clsx(classes.stone, {

@@ -54,6 +54,20 @@ test('arrow keys navigate focus to adjacent intersections', async ({ page }) => 
   await expect(getIntersection(page, 7, 7)).toBeFocused();
 });
 
+test.describe('on a device without hover (e.g. mobile)', () => {
+  test.use({ hasTouch: true });
+
+  test('the first tap previews a stone and the second tap places it', async ({ page }) => {
+    const intersection = getIntersection(page, 7, 7);
+
+    await intersection.tap();
+    await expect(intersection).toHaveText('preview');
+
+    await intersection.tap();
+    await expect(intersection).toHaveText('black');
+  });
+});
+
 function getIntersection(page: Page, row: number, col: number) {
   return page.getByTestId(`intersection-${row}-${col}`);
 }
