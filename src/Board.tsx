@@ -1,16 +1,19 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { Intersection } from './Intersection.tsx';
-import { type Coordinate, type IntersectionState, boardSize, nextCoordinate } from './board.ts';
+import {
+  type Coordinate,
+  type IntersectionState,
+  boardCoordinates,
+  centerCoordinate,
+  coordinateKey,
+  coordinatesEqual,
+  nextCoordinate,
+} from './board.ts';
 import classes from './Board.module.css';
-
-const intersections = boardSize * boardSize;
-const initialStones = new Set<string>();
-const centerIndex = Math.floor((boardSize - 1) / 2);
-const centerIntersection: Coordinate = { row: centerIndex, col: centerIndex };
 
 export function Board() {
   const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
-  const [tabStop, setTabStop] = useState<Coordinate>(centerIntersection);
+  const [tabStop, setTabStop] = useState<Coordinate>(centerCoordinate);
   const intersectionsRef = useRef(new Map<string, HTMLElement>());
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
@@ -50,10 +53,7 @@ export function Board() {
   return (
     <div className={classes.root}>
       <div className={classes.board}>
-        {Array.from({ length: intersections }, (_, i) => {
-          const row = Math.floor(i / boardSize);
-          const col = i % boardSize;
-          const coordinate = { row, col };
+        {boardCoordinates.map((coordinate) => {
           const tabIndex = coordinatesEqual(tabStop, coordinate) ? 0 : -1;
 
           return (
@@ -73,6 +73,8 @@ export function Board() {
     </div>
   );
 }
+
+const initialStones = new Set<string>();
 
 function useBoard() {
   const [stones, setStones] = useState(initialStones);
@@ -98,12 +100,4 @@ function useBoard() {
   }
 
   return { stateAt, placeStone, previewOrPlaceStone };
-}
-
-function coordinateKey({ row, col }: Coordinate) {
-  return `${row},${col}`;
-}
-
-function coordinatesEqual(a: Coordinate, b: Coordinate) {
-  return a.row === b.row && a.col === b.col;
 }

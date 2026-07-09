@@ -2,8 +2,23 @@ export type Coordinate = { row: number; col: number };
 export type IntersectionState = 'empty' | 'black' | 'preview';
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
-export const boardSize = 15; // intersections per side
+const boardSize = 15; // intersections per side
 export const lastIndex = boardSize - 1;
+
+const centerIndex = Math.floor(lastIndex / 2);
+export const centerCoordinate: Coordinate = { row: centerIndex, col: centerIndex };
+
+export const boardCoordinates: Coordinate[] = Array.from({ length: boardSize }, (_, row) =>
+  Array.from({ length: boardSize }, (_, col): Coordinate => ({ row, col })),
+).flat();
+
+export function coordinateKey({ row, col }: Coordinate) {
+  return `${row},${col}`;
+}
+
+export function coordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.row === b.row && a.col === b.col;
+}
 
 export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinate {
   switch (key) {
