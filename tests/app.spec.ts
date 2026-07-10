@@ -69,5 +69,5 @@ test.describe('on a device without hover (e.g. mobile)', () => {
 });
 
 function getIntersection(page: Page, row: number, col: number) {
-  return page.getByTestId(`intersection-${row}-${col}`);
+  return page.getByTestId(`intersection-${row},${col}`);
 }

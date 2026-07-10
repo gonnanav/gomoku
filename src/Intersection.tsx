@@ -1,6 +1,6 @@
 import { type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { type Coordinate, type IntersectionState, lastIndex } from './board.ts';
+import { type Coordinate, type IntersectionState, edgesAt, keyOf } from './board.ts';
 import classes from './Intersection.module.css';
 
 type IntersectionProps = {
@@ -22,22 +22,17 @@ export function Intersection({
   onKeyDown,
   onClick,
 }: IntersectionProps) {
-  const { row, col } = coordinate;
-
-  const edgeTop = row === 0;
-  const edgeRight = col === lastIndex;
-  const edgeBottom = row === lastIndex;
-  const edgeLeft = col === 0;
+  const edges = edgesAt(coordinate);
 
   return (
     <div
       ref={(element) => registerElement(element, coordinate)}
-      data-testid={`intersection-${row}-${col}`}
+      data-testid={`intersection-${keyOf(coordinate)}`}
       className={clsx(classes.root, {
-        [classes.edgeTop]: edgeTop,
-        [classes.edgeRight]: edgeRight,
-        [classes.edgeBottom]: edgeBottom,
-        [classes.edgeLeft]: edgeLeft,
+        [classes.edgeTop]: edges.top,
+        [classes.edgeRight]: edges.right,
+        [classes.edgeBottom]: edges.bottom,
+        [classes.edgeLeft]: edges.left,
       })}
       tabIndex={tabIndex}
       onFocus={() => onFocus(coordinate)}

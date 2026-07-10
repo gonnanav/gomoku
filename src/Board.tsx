@@ -5,8 +5,8 @@ import {
   type IntersectionState,
   boardCoordinates,
   centerCoordinate,
-  coordinateKey,
   coordinatesEqual,
+  keyOf,
   nextCoordinate,
 } from './board.ts';
 import classes from './Board.module.css';
@@ -47,7 +47,7 @@ export function Board() {
       <div className={classes.board}>
         {boardCoordinates.map((coordinate) => (
           <Intersection
-            key={coordinateKey(coordinate)}
+            key={keyOf(coordinate)}
             coordinate={coordinate}
             state={stateAt(coordinate)}
             tabIndex={tabIndexFor(coordinate)}
@@ -69,13 +69,13 @@ function useBoard() {
   const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
 
   function stateAt(coordinate: Coordinate): IntersectionState {
-    if (stones.has(coordinateKey(coordinate))) return 'black';
+    if (stones.has(keyOf(coordinate))) return 'black';
     if (previewedStone !== null && coordinatesEqual(previewedStone, coordinate)) return 'preview';
     return 'empty';
   }
 
   function placeStone(coordinate: Coordinate) {
-    setStones((prev) => new Set(prev).add(coordinateKey(coordinate)));
+    setStones((prev) => new Set(prev).add(keyOf(coordinate)));
   }
 
   function previewOrPlaceStone(coordinate: Coordinate) {
@@ -96,11 +96,11 @@ function useRovingFocus() {
 
   function registerIntersection(element: HTMLElement | null, coordinate: Coordinate) {
     if (!element) return;
-    intersectionsRef.current.set(coordinateKey(coordinate), element);
+    intersectionsRef.current.set(keyOf(coordinate), element);
   }
 
   function focusIntersection(coordinate: Coordinate) {
-    intersectionsRef.current.get(coordinateKey(coordinate))?.focus();
+    intersectionsRef.current.get(keyOf(coordinate))?.focus();
   }
 
   function tabIndexFor(coordinate: Coordinate) {
