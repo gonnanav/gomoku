@@ -13,8 +13,7 @@ import classes from './Board.module.css';
 
 export function Board() {
   const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
-  const [tabStop, setTabStop] = useState<Coordinate>(centerCoordinate);
-  const intersectionsRef = useRef(new Map<string, HTMLElement>());
+  const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -30,9 +29,7 @@ export function Board() {
       event.key === 'ArrowRight'
     ) {
       event.preventDefault();
-      const next = nextCoordinate(coordinate, event.key);
-      const nextElement = intersectionsRef.current.get(coordinateKey(next));
-      nextElement?.focus();
+      focusIntersection(nextCoordinate(coordinate, event.key));
     }
   }
 
@@ -45,30 +42,21 @@ export function Board() {
     }
   }
 
-  function registerIntersection(element: HTMLElement | null, coordinate: Coordinate) {
-    if (!element) return;
-    intersectionsRef.current.set(coordinateKey(coordinate), element);
-  }
-
   return (
     <div className={classes.root}>
       <div className={classes.board}>
-        {boardCoordinates.map((coordinate) => {
-          const tabIndex = coordinatesEqual(tabStop, coordinate) ? 0 : -1;
-
-          return (
-            <Intersection
-              key={coordinateKey(coordinate)}
-              coordinate={coordinate}
-              state={stateAt(coordinate)}
-              tabIndex={tabIndex}
-              registerElement={registerIntersection}
-              onFocus={setTabStop}
-              onKeyDown={handleIntersectionKeyDown}
-              onClick={handleIntersectionClick}
-            />
-          );
-        })}
+        {boardCoordinates.map((coordinate) => (
+          <Intersection
+            key={coordinateKey(coordinate)}
+            coordinate={coordinate}
+            state={stateAt(coordinate)}
+            tabIndex={tabIndexFor(coordinate)}
+            registerElement={registerIntersection}
+            onFocus={setTabStop}
+            onKeyDown={handleIntersectionKeyDown}
+            onClick={handleIntersectionClick}
+          />
+        ))}
       </div>
     </div>
   );
@@ -100,4 +88,24 @@ function useBoard() {
   }
 
   return { stateAt, placeStone, previewOrPlaceStone };
+}
+
+function useRovingFocus() {
+  const [tabStop, setTabStop] = useState<Coordinate>(centerCoordinate);
+  const intersectionsRef = useRef(new Map<string, HTMLElement>());
+
+  function registerIntersection(element: HTMLElement | null, coordinate: Coordinate) {
+    if (!element) return;
+    intersectionsRef.current.set(coordinateKey(coordinate), element);
+  }
+
+  function focusIntersection(coordinate: Coordinate) {
+    intersectionsRef.current.get(coordinateKey(coordinate))?.focus();
+  }
+
+  function tabIndexFor(coordinate: Coordinate) {
+    return coordinatesEqual(tabStop, coordinate) ? 0 : -1;
+  }
+
+  return { registerIntersection, focusIntersection, tabIndexFor, setTabStop };
 }
