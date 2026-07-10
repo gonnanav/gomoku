@@ -1,11 +1,11 @@
-export type Coordinate = { row: number; col: number };
+export type Coordinate = { readonly row: number; readonly col: number };
 export type IntersectionState = 'empty' | 'black' | 'preview';
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 const boardSize = 15; // intersections per side
 const lastIndex = boardSize - 1;
-
 const centerIndex = Math.floor(lastIndex / 2);
+
 export const centerCoordinate: Coordinate = { row: centerIndex, col: centerIndex };
 
 export const boardCoordinates: Coordinate[] = Array.from({ length: boardSize }, (_, row) =>
