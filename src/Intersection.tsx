@@ -40,13 +40,7 @@ export function Intersection({
       onClick={() => onClick(coordinate)}
     >
       <span className="visually-hidden">{state}</span>
-      <div
-        aria-hidden
-        className={clsx(classes.stone, {
-          [classes.previewed]: state === 'preview',
-          [classes.placed]: state === 'black',
-        })}
-      />
+      <div className={classes.stone} aria-hidden data-state={state} />
     </div>
   );
 }

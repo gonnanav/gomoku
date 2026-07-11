@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { edgesAt, nextCoordinate } from './board.ts';
+import { edgesAt, nextCoordinate, oppositeOf } from './board.ts';
 
 describe('nextCoordinate', () => {
   test.each([
@@ -29,5 +29,14 @@ describe('edgesAt', () => {
     [14, 14, { top: false, right: true, bottom: true, left: false }],
   ] as const)('edges of coordinate (%d,%d) are %j', (row, col, edges) => {
     expect(edgesAt({ row, col })).toEqual(edges);
+  });
+});
+
+describe('oppositeOf', () => {
+  test.each([
+    ['black', 'white'],
+    ['white', 'black'],
+  ] as const)('opposite of %j is %j', (color, opposite) => {
+    expect(oppositeOf(color)).toBe(opposite);
   });
 });

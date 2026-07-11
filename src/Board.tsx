@@ -3,16 +3,18 @@ import { Intersection } from './Intersection.tsx';
 import {
   type Coordinate,
   type IntersectionState,
+  type StoneColor,
   boardCoordinates,
   centerCoordinate,
   coordinatesEqual,
   keyOf,
   nextCoordinate,
+  oppositeOf,
 } from './board.ts';
 import classes from './Board.module.css';
 
 export function Board() {
-  const { stateAt, placeStone, previewOrPlaceStone } = useBoard();
+  const { stateAt, currentColor, placeStone, previewOrPlaceStone } = useBoard();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
@@ -44,7 +46,7 @@ export function Board() {
 
   return (
     <div className={classes.root}>
-      <div className={classes.board}>
+      <div className={classes.board} data-current-color={currentColor}>
         {boardCoordinates.map((coordinate) => (
           <Intersection
             key={keyOf(coordinate)}
@@ -62,20 +64,31 @@ export function Board() {
   );
 }
 
-const initialStones = new Set<string>();
+type UseBoardResult = {
+  stateAt: (coordinate: Coordinate) => IntersectionState;
+  currentColor: StoneColor;
+  placeStone: (coordinate: Coordinate) => void;
+  previewOrPlaceStone: (coordinate: Coordinate) => void;
+};
 
-function useBoard() {
+const initialStones = new Map<string, StoneColor>();
+
+function useBoard(): UseBoardResult {
   const [stones, setStones] = useState(initialStones);
+  const [currentColor, setCurrentColor] = useState<StoneColor>('black');
   const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
 
   function stateAt(coordinate: Coordinate): IntersectionState {
-    if (stones.has(keyOf(coordinate))) return 'black';
+    const stone = stones.get(keyOf(coordinate));
+    if (stone) return stone;
     if (previewedStone !== null && coordinatesEqual(previewedStone, coordinate)) return 'preview';
     return 'empty';
   }
 
   function placeStone(coordinate: Coordinate) {
-    setStones((prev) => new Set(prev).add(keyOf(coordinate)));
+    if (stones.has(keyOf(coordinate))) return;
+    setStones((prev) => new Map(prev).set(keyOf(coordinate), currentColor));
+    setCurrentColor(oppositeOf(currentColor));
   }
 
   function previewOrPlaceStone(coordinate: Coordinate) {
@@ -87,10 +100,17 @@ function useBoard() {
     }
   }
 
-  return { stateAt, placeStone, previewOrPlaceStone };
+  return { stateAt, currentColor, placeStone, previewOrPlaceStone };
 }
 
-function useRovingFocus() {
+type UseRovingFocusResult = {
+  registerIntersection: (element: HTMLElement | null, coordinate: Coordinate) => void;
+  focusIntersection: (coordinate: Coordinate) => void;
+  tabIndexFor: (coordinate: Coordinate) => number;
+  setTabStop: (coordinate: Coordinate) => void;
+};
+
+function useRovingFocus(): UseRovingFocusResult {
   const [tabStop, setTabStop] = useState<Coordinate>(centerCoordinate);
   const intersectionsRef = useRef(new Map<string, HTMLElement>());
 

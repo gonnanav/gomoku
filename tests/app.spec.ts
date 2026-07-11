@@ -4,11 +4,32 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
-test('clicking an intersection places a black stone on it', async ({ page }) => {
-  const intersection = getIntersection(page, 7, 7);
-  await intersection.click();
+test('clicking places alternating stones, starting with black', async ({ page }) => {
+  const first = getIntersection(page, 7, 7);
+  await first.click();
+  await expect(first).toHaveText('black');
 
-  await expect(intersection).toHaveText('black');
+  const second = getIntersection(page, 7, 8);
+  await second.click();
+  await expect(second).toHaveText('white');
+
+  const third = getIntersection(page, 8, 7);
+  await third.click();
+  await expect(third).toHaveText('black');
+});
+
+test('clicking an occupied intersection is ignored', async ({ page }) => {
+  const first = getIntersection(page, 7, 7);
+  await first.click();
+  await expect(first).toHaveText('black');
+
+  await first.click();
+  await expect(first).toHaveText('black');
+
+  // The ignored click didn't consume the turn: white is still the one to play
+  const second = getIntersection(page, 7, 8);
+  await second.click();
+  await expect(second).toHaveText('white');
 });
 
 test('tab focuses the center intersection by default', async ({ page }) => {

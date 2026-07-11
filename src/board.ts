@@ -1,5 +1,6 @@
 export type Coordinate = { readonly row: number; readonly col: number };
-export type IntersectionState = 'empty' | 'black' | 'preview';
+export type StoneColor = 'black' | 'white';
+export type IntersectionState = 'empty' | 'preview' | StoneColor;
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 const boardSize = 15; // intersections per side
@@ -18,6 +19,10 @@ export function keyOf({ row, col }: Coordinate) {
 
 export function coordinatesEqual(a: Coordinate, b: Coordinate) {
   return a.row === b.row && a.col === b.col;
+}
+
+export function oppositeOf(color: StoneColor): StoneColor {
+  return color === 'black' ? 'white' : 'black';
 }
 
 export function edgesAt({ row, col }: Coordinate) {

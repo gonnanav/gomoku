@@ -30,3 +30,12 @@
   /* Visual */
   background: #dcb35c;
 }
+
+/* Context provided to descendants */
+.board[data-current-color='black'] {
+  --current-turn-color: #000;
+}
+
+.board[data-current-color='white'] {
+  --current-turn-color: #fff;
+}
