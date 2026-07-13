@@ -7,9 +7,12 @@ import {
   boardCoordinates,
   centerCoordinate,
   coordinatesEqual,
+  initialGameState,
   keyOf,
   nextCoordinate,
-  oppositeOf,
+  placeStone,
+  previewOrPlaceStone,
+  stateAt,
 } from './board.ts';
 import classes from './Board.module.css';
 
@@ -71,36 +74,15 @@ type UseBoardResult = {
   previewOrPlaceStone: (coordinate: Coordinate) => void;
 };
 
-const initialStones = new Map<string, StoneColor>();
-
 function useBoard(): UseBoardResult {
-  const [stones, setStones] = useState(initialStones);
-  const [currentColor, setCurrentColor] = useState<StoneColor>('black');
-  const [previewedStone, setPreviewedStone] = useState<Coordinate | null>(null);
+  const [game, setGame] = useState(initialGameState);
 
-  function stateAt(coordinate: Coordinate): IntersectionState {
-    const stone = stones.get(keyOf(coordinate));
-    if (stone) return stone;
-    if (previewedStone !== null && coordinatesEqual(previewedStone, coordinate)) return 'preview';
-    return 'empty';
-  }
-
-  function placeStone(coordinate: Coordinate) {
-    if (stones.has(keyOf(coordinate))) return;
-    setStones((prev) => new Map(prev).set(keyOf(coordinate), currentColor));
-    setCurrentColor(oppositeOf(currentColor));
-  }
-
-  function previewOrPlaceStone(coordinate: Coordinate) {
-    if (stateAt(coordinate) === 'preview') {
-      placeStone(coordinate);
-      setPreviewedStone(null);
-    } else {
-      setPreviewedStone(coordinate);
-    }
-  }
-
-  return { stateAt, currentColor, placeStone, previewOrPlaceStone };
+  return {
+    stateAt: (coordinate) => stateAt(game, coordinate),
+    currentColor: game.currentColor,
+    placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
+    previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),
+  };
 }
 
 type UseRovingFocusResult = {

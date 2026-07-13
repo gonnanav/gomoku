@@ -1,5 +1,98 @@
 import { describe, expect, test } from 'vitest';
-import { edgesAt, nextCoordinate, oppositeOf } from './board.ts';
+import {
+  edgesAt,
+  initialGameState,
+  nextCoordinate,
+  placeStone,
+  previewOrPlaceStone,
+  stateAt,
+} from './board.ts';
+
+describe('game state', () => {
+  test('the game starts with an empty board and black to play', () => {
+    expect(stateAt(initialGameState, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(initialGameState, { row: 7, col: 7 })).toBe('empty');
+    expect(initialGameState.currentColor).toBe('black');
+  });
+
+  test('placing the first stone places a single black stone', () => {
+    const game = placeStone(initialGameState, { row: 7, col: 7 });
+
+    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(game.currentColor).toBe('white');
+  });
+
+  test('placing the second stone places a single white stone', () => {
+    let game = placeStone(initialGameState, { row: 7, col: 7 });
+    game = placeStone(game, { row: 7, col: 8 });
+
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(stateAt(game, { row: 7, col: 8 })).toBe('white');
+    expect(game.currentColor).toBe('black');
+  });
+
+  test('placing the third stone places a black stone again', () => {
+    let game = placeStone(initialGameState, { row: 7, col: 7 });
+    game = placeStone(game, { row: 7, col: 8 });
+    game = placeStone(game, { row: 7, col: 9 });
+
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(stateAt(game, { row: 7, col: 8 })).toBe('white');
+    expect(stateAt(game, { row: 7, col: 9 })).toBe('black');
+  });
+
+  test('trying to place a stone on an already occupied intersection does nothing', () => {
+    const game = placeStone(initialGameState, { row: 7, col: 7 });
+
+    expect(placeStone(game, { row: 7, col: 7 })).toBe(game);
+  });
+
+  test('previewing an empty intersection marks it as previewed', () => {
+    const game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
+
+    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('preview');
+    expect(game.currentColor).toBe('black');
+  });
+
+  test('confirming a placement on a previewed intersection places a stone on it', () => {
+    let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
+    game = previewOrPlaceStone(game, { row: 7, col: 7 });
+
+    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(game.currentColor).toBe('white');
+  });
+
+  test('previewing another intersection moves the preview', () => {
+    let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
+    game = previewOrPlaceStone(game, { row: 7, col: 8 });
+
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('empty');
+    expect(stateAt(game, { row: 7, col: 8 })).toBe('preview');
+  });
+
+  test('previewing an occupied intersection does nothing', () => {
+    const game = placeStone(initialGameState, { row: 7, col: 7 });
+
+    expect(previewOrPlaceStone(game, { row: 7, col: 7 })).toBe(game);
+  });
+
+  test('placing a stone anywhere on the board clears the preview', () => {
+    let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
+    game = placeStone(game, { row: 7, col: 8 });
+
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('empty');
+  });
+
+  test('placing directly on a previewed intersection places a stone on it', () => {
+    let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
+    game = placeStone(game, { row: 7, col: 7 });
+
+    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+  });
+});
 
 describe('nextCoordinate', () => {
   test.each([
@@ -29,14 +122,5 @@ describe('edgesAt', () => {
     [14, 14, { top: false, right: true, bottom: true, left: false }],
   ] as const)('edges of coordinate (%d,%d) are %j', (row, col, edges) => {
     expect(edgesAt({ row, col })).toEqual(edges);
-  });
-});
-
-describe('oppositeOf', () => {
-  test.each([
-    ['black', 'white'],
-    ['white', 'black'],
-  ] as const)('opposite of %j is %j', (color, opposite) => {
-    expect(oppositeOf(color)).toBe(opposite);
   });
 });
