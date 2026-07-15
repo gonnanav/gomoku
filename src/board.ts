@@ -5,7 +5,6 @@ export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 export type GameState = {
   readonly stones: ReadonlyMap<string, StoneColor>;
-  readonly currentColor: StoneColor;
   readonly previewedStone: Coordinate | null;
 };
 
@@ -38,9 +37,12 @@ export function edgesAt({ row, col }: Coordinate) {
 
 export const initialGameState: GameState = {
   stones: new Map(),
-  currentColor: 'black',
   previewedStone: null,
 };
+
+export function currentColorOf(game: GameState): StoneColor {
+  return game.stones.size % 2 === 0 ? 'black' : 'white';
+}
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
   const stone = game.stones.get(keyOf(coordinate));
@@ -57,8 +59,7 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
   if (game.stones.has(keyOf(coordinate))) return game;
 
   return {
-    stones: new Map(game.stones).set(keyOf(coordinate), game.currentColor),
-    currentColor: oppositeOf(game.currentColor),
+    stones: new Map(game.stones).set(keyOf(coordinate), currentColorOf(game)),
     previewedStone: null,
   };
 }
@@ -86,8 +87,4 @@ export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinat
 
 function clampIndex(index: number): number {
   return Math.min(Math.max(index, 0), lastIndex);
-}
-
-function oppositeOf(color: StoneColor): StoneColor {
-  return color === 'black' ? 'white' : 'black';
 }

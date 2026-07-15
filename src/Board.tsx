@@ -7,6 +7,7 @@ import {
   boardCoordinates,
   centerCoordinate,
   coordinatesEqual,
+  currentColorOf,
   initialGameState,
   keyOf,
   nextCoordinate,
@@ -78,7 +79,7 @@ function useBoard(): UseBoardResult {
   const [game, setGame] = useState(initialGameState);
 
   return {
-    currentColor: game.currentColor,
+    currentColor: currentColorOf(game),
     stateAt: (coordinate) => stateAt(game, coordinate),
     placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
     previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  currentColorOf,
   edgesAt,
   initialGameState,
   nextCoordinate,
@@ -12,7 +13,7 @@ describe('game state', () => {
   test('the game starts with an empty board and black to play', () => {
     expect(stateAt(initialGameState, { row: 0, col: 0 })).toBe('empty');
     expect(stateAt(initialGameState, { row: 7, col: 7 })).toBe('empty');
-    expect(initialGameState.currentColor).toBe('black');
+    expect(currentColorOf(initialGameState)).toBe('black');
   });
 
   test('placing the first stone places a single black stone', () => {
@@ -20,7 +21,7 @@ describe('game state', () => {
 
     expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
     expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
-    expect(game.currentColor).toBe('white');
+    expect(currentColorOf(game)).toBe('white');
   });
 
   test('placing the second stone places a single white stone', () => {
@@ -29,7 +30,7 @@ describe('game state', () => {
 
     expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
     expect(stateAt(game, { row: 7, col: 8 })).toBe('white');
-    expect(game.currentColor).toBe('black');
+    expect(currentColorOf(game)).toBe('black');
   });
 
   test('placing the third stone places a black stone again', () => {
@@ -53,7 +54,7 @@ describe('game state', () => {
 
     expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
     expect(stateAt(game, { row: 7, col: 7 })).toBe('preview');
-    expect(game.currentColor).toBe('black');
+    expect(currentColorOf(game)).toBe('black');
   });
 
   test('confirming a placement on a previewed intersection places a stone on it', () => {
@@ -62,7 +63,7 @@ describe('game state', () => {
 
     expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
     expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
-    expect(game.currentColor).toBe('white');
+    expect(currentColorOf(game)).toBe('white');
   });
 
   test('previewing another intersection moves the preview', () => {
