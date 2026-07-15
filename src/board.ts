@@ -45,18 +45,13 @@ export function currentColorOf(game: GameState): StoneColor {
 }
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
-  const stone = game.stones.get(keyOf(coordinate));
-  if (stone) return stone;
+  if (isPreviewedAt(game, coordinate)) return 'preview';
 
-  if (game.previewedStone && coordinatesEqual(game.previewedStone, coordinate)) {
-    return 'preview';
-  }
-
-  return 'empty';
+  return stoneColorAt(game, coordinate) ?? 'empty';
 }
 
 export function placeStone(game: GameState, coordinate: Coordinate): GameState {
-  if (game.stones.has(keyOf(coordinate))) return game;
+  if (hasStoneAt(game, coordinate)) return game;
 
   return {
     stones: new Map(game.stones).set(keyOf(coordinate), currentColorOf(game)),
@@ -65,11 +60,10 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
 }
 
 export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): GameState {
-  if (stateAt(game, coordinate) === 'empty') {
-    return { ...game, previewedStone: coordinate };
-  }
+  if (hasStoneAt(game, coordinate)) return game;
+  if (isPreviewedAt(game, coordinate)) return placeStone(game, coordinate);
 
-  return placeStone(game, coordinate);
+  return { ...game, previewedStone: coordinate };
 }
 
 export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinate {
@@ -83,6 +77,18 @@ export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinat
     case 'ArrowRight':
       return { row: coordinate.row, col: clampIndex(coordinate.col + 1) };
   }
+}
+
+function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
+  return game.stones.get(keyOf(coordinate));
+}
+
+function hasStoneAt(game: GameState, coordinate: Coordinate): boolean {
+  return game.stones.has(keyOf(coordinate));
+}
+
+function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {
+  return game.previewedStone !== null && coordinatesEqual(game.previewedStone, coordinate);
 }
 
 function clampIndex(index: number): number {
