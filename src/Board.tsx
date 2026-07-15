@@ -17,7 +17,7 @@ import {
 import classes from './Board.module.css';
 
 export function Board() {
-  const { stateAt, currentColor, placeStone, previewOrPlaceStone } = useBoard();
+  const { currentColor, stateAt, placeStone, previewOrPlaceStone } = useBoard();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
@@ -68,8 +68,8 @@ export function Board() {
 }
 
 type UseBoardResult = {
-  stateAt: (coordinate: Coordinate) => IntersectionState;
   currentColor: StoneColor;
+  stateAt: (coordinate: Coordinate) => IntersectionState;
   placeStone: (coordinate: Coordinate) => void;
   previewOrPlaceStone: (coordinate: Coordinate) => void;
 };
@@ -78,8 +78,8 @@ function useBoard(): UseBoardResult {
   const [game, setGame] = useState(initialGameState);
 
   return {
-    stateAt: (coordinate) => stateAt(game, coordinate),
     currentColor: game.currentColor,
+    stateAt: (coordinate) => stateAt(game, coordinate),
     placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
     previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),
   };

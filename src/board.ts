@@ -3,6 +3,12 @@ export type StoneColor = 'black' | 'white';
 export type IntersectionState = 'empty' | 'preview' | StoneColor;
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
+export type GameState = {
+  readonly stones: ReadonlyMap<string, StoneColor>;
+  readonly currentColor: StoneColor;
+  readonly previewedStone: Coordinate | null;
+};
+
 const boardSize = 15; // intersections per side
 const lastIndex = boardSize - 1;
 const centerIndex = Math.floor(lastIndex / 2);
@@ -29,12 +35,6 @@ export function edgesAt({ row, col }: Coordinate) {
     left: col === 0,
   };
 }
-
-export type GameState = {
-  readonly stones: ReadonlyMap<string, StoneColor>;
-  readonly currentColor: StoneColor;
-  readonly previewedStone: Coordinate | null;
-};
 
 export const initialGameState: GameState = {
   stones: new Map(),
