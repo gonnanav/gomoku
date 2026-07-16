@@ -4,7 +4,7 @@ export type IntersectionState = 'empty' | 'preview' | StoneColor;
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 export type GameState = {
-  readonly stones: ReadonlyMap<string, StoneColor>;
+  readonly moves: readonly Coordinate[];
   readonly previewedStone: Coordinate | null;
 };
 
@@ -36,12 +36,12 @@ export function edgesAt({ row, col }: Coordinate) {
 }
 
 export const initialGameState: GameState = {
-  stones: new Map(),
+  moves: [],
   previewedStone: null,
 };
 
 export function currentColorOf(game: GameState): StoneColor {
-  return game.stones.size % 2 === 0 ? 'black' : 'white';
+  return colorOfMove(game.moves.length);
 }
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
@@ -54,7 +54,7 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
   if (hasStoneAt(game, coordinate)) return game;
 
   return {
-    stones: new Map(game.stones).set(keyOf(coordinate), currentColorOf(game)),
+    moves: [...game.moves, coordinate],
     previewedStone: null,
   };
 }
@@ -79,12 +79,31 @@ export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinat
   }
 }
 
+// Memoizes the stones derived from a moves array, so queries cost O(1) after a
+// single O(moves) build per position instead of scanning the moves each time.
+const stonesCache = new WeakMap<readonly Coordinate[], ReadonlyMap<string, StoneColor>>();
+
+function stonesOf(game: GameState): ReadonlyMap<string, StoneColor> {
+  let stones = stonesCache.get(game.moves);
+
+  if (!stones) {
+    stones = new Map(game.moves.map((move, moveIndex) => [keyOf(move), colorOfMove(moveIndex)]));
+    stonesCache.set(game.moves, stones);
+  }
+
+  return stones;
+}
+
 function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
-  return game.stones.get(keyOf(coordinate));
+  return stonesOf(game).get(keyOf(coordinate));
 }
 
 function hasStoneAt(game: GameState, coordinate: Coordinate): boolean {
-  return game.stones.has(keyOf(coordinate));
+  return stonesOf(game).has(keyOf(coordinate));
+}
+
+function colorOfMove(moveIndex: number): StoneColor {
+  return moveIndex % 2 === 0 ? 'black' : 'white';
 }
 
 function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {
