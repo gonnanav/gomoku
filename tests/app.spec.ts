@@ -18,6 +18,18 @@ test('clicking places alternating stones, starting with black', async ({ page })
   await expect(third).toHaveText('black');
 });
 
+test('only the most recently placed stone is marked', async ({ page }) => {
+  const firstStone = getIntersection(page, 7, 7).locator('[data-color="black"]');
+  const secondStone = getIntersection(page, 7, 8).locator('[data-color="white"]');
+
+  await getIntersection(page, 7, 7).click();
+  await expect(firstStone).toHaveAttribute('data-last-move', 'true');
+
+  await getIntersection(page, 7, 8).click();
+  await expect(firstStone).toHaveAttribute('data-last-move', 'false');
+  await expect(secondStone).toHaveAttribute('data-last-move', 'true');
+});
+
 test('clicking an occupied intersection is ignored', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   await first.click();

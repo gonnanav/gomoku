@@ -23,6 +23,8 @@ export function Intersection({
   onClick,
 }: IntersectionProps) {
   const edges = edgesAt(coordinate);
+  const color = state.kind === 'stone' ? state.color : undefined;
+  const isLastMove = state.kind === 'stone' ? state.isLastMove : undefined;
 
   return (
     <div
@@ -39,8 +41,14 @@ export function Intersection({
       onKeyDown={(event) => onKeyDown(event, coordinate)}
       onClick={() => onClick(coordinate)}
     >
-      <span className="visually-hidden">{state}</span>
-      <div className={classes.stone} aria-hidden data-state={state} />
+      <span className="visually-hidden">{color ?? state.kind}</span>
+      <div
+        className={classes.stone}
+        aria-hidden
+        data-state={state.kind}
+        data-color={color}
+        data-last-move={isLastMove}
+      />
     </div>
   );
 }

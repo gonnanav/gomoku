@@ -11,16 +11,20 @@ import {
 
 describe('game state', () => {
   test('the game starts with an empty board and black to play', () => {
-    expect(stateAt(initialGameState, { row: 0, col: 0 })).toBe('empty');
-    expect(stateAt(initialGameState, { row: 7, col: 7 })).toBe('empty');
+    expect(stateAt(initialGameState, { row: 0, col: 0 })).toEqual({ kind: 'empty' });
+    expect(stateAt(initialGameState, { row: 7, col: 7 })).toEqual({ kind: 'empty' });
     expect(currentColorOf(initialGameState)).toBe('black');
   });
 
   test('placing the first stone places a single black stone', () => {
     const game = placeStone(initialGameState, { row: 7, col: 7 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual({ kind: 'empty' });
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: true,
+    });
     expect(currentColorOf(game)).toBe('white');
   });
 
@@ -28,8 +32,16 @@ describe('game state', () => {
     let game = placeStone(initialGameState, { row: 7, col: 7 });
     game = placeStone(game, { row: 7, col: 8 });
 
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
-    expect(stateAt(game, { row: 7, col: 8 })).toBe('white');
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: false,
+    });
+    expect(stateAt(game, { row: 7, col: 8 })).toEqual({
+      kind: 'stone',
+      color: 'white',
+      isLastMove: true,
+    });
     expect(currentColorOf(game)).toBe('black');
   });
 
@@ -38,9 +50,21 @@ describe('game state', () => {
     game = placeStone(game, { row: 7, col: 8 });
     game = placeStone(game, { row: 7, col: 9 });
 
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
-    expect(stateAt(game, { row: 7, col: 8 })).toBe('white');
-    expect(stateAt(game, { row: 7, col: 9 })).toBe('black');
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: false,
+    });
+    expect(stateAt(game, { row: 7, col: 8 })).toEqual({
+      kind: 'stone',
+      color: 'white',
+      isLastMove: false,
+    });
+    expect(stateAt(game, { row: 7, col: 9 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: true,
+    });
   });
 
   test('trying to place a stone on an already occupied intersection does nothing', () => {
@@ -52,8 +76,8 @@ describe('game state', () => {
   test('previewing an empty intersection marks it as previewed', () => {
     const game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('preview');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual({ kind: 'empty' });
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({ kind: 'preview' });
     expect(currentColorOf(game)).toBe('black');
   });
 
@@ -61,8 +85,12 @@ describe('game state', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
     game = previewOrPlaceStone(game, { row: 7, col: 7 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual({ kind: 'empty' });
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: true,
+    });
     expect(currentColorOf(game)).toBe('white');
   });
 
@@ -70,8 +98,8 @@ describe('game state', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
     game = previewOrPlaceStone(game, { row: 7, col: 8 });
 
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('empty');
-    expect(stateAt(game, { row: 7, col: 8 })).toBe('preview');
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({ kind: 'empty' });
+    expect(stateAt(game, { row: 7, col: 8 })).toEqual({ kind: 'preview' });
   });
 
   test('previewing an occupied intersection does nothing', () => {
@@ -84,14 +112,18 @@ describe('game state', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
     game = placeStone(game, { row: 7, col: 8 });
 
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('empty');
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({ kind: 'empty' });
   });
 
   test('placing directly on a previewed intersection places a stone on it', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 7, col: 7 });
     game = placeStone(game, { row: 7, col: 7 });
 
-    expect(stateAt(game, { row: 7, col: 7 })).toBe('black');
+    expect(stateAt(game, { row: 7, col: 7 })).toEqual({
+      kind: 'stone',
+      color: 'black',
+      isLastMove: true,
+    });
   });
 });
 
