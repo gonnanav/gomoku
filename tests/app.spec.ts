@@ -7,15 +7,15 @@ test.beforeEach(async ({ page }) => {
 test('clicking places alternating stones, starting with black', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   await first.click();
-  await expect(first).toHaveText('black');
+  await expect(first).toHaveAttribute('data-color', 'black');
 
   const second = getIntersection(page, 7, 8);
   await second.click();
-  await expect(second).toHaveText('white');
+  await expect(second).toHaveAttribute('data-color', 'white');
 
   const third = getIntersection(page, 8, 7);
   await third.click();
-  await expect(third).toHaveText('black');
+  await expect(third).toHaveAttribute('data-color', 'black');
 });
 
 test('only the most recently placed stone is marked', async ({ page }) => {
@@ -33,15 +33,15 @@ test('only the most recently placed stone is marked', async ({ page }) => {
 test('clicking an occupied intersection is ignored', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   await first.click();
-  await expect(first).toHaveText('black');
+  await expect(first).toHaveAttribute('data-color', 'black');
 
   await first.click();
-  await expect(first).toHaveText('black');
+  await expect(first).toHaveAttribute('data-color', 'black');
 
   // The ignored click didn't consume the turn: white is still the one to play
   const second = getIntersection(page, 7, 8);
   await second.click();
-  await expect(second).toHaveText('white');
+  await expect(second).toHaveAttribute('data-color', 'white');
 });
 
 test('tab focuses the center intersection by default', async ({ page }) => {
@@ -67,7 +67,7 @@ for (const key of ['Enter', 'Space']) {
     await intersection.focus();
     await page.keyboard.press(key);
 
-    await expect(intersection).toHaveText('black');
+    await expect(intersection).toHaveAttribute('data-color', 'black');
   });
 }
 
@@ -94,10 +94,10 @@ test.describe('on a device without hover (e.g. mobile)', () => {
     const intersection = getIntersection(page, 7, 7);
 
     await intersection.tap();
-    await expect(intersection).toHaveText('previewed');
+    await expect(intersection).toHaveAttribute('data-previewed');
 
     await intersection.tap();
-    await expect(intersection).toHaveText('black');
+    await expect(intersection).toHaveAttribute('data-color', 'black');
   });
 });
 
