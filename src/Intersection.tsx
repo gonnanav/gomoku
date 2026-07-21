@@ -41,16 +41,13 @@ export function Intersection({
       onFocus={() => onFocus(coordinate)}
       onKeyDown={(event) => onKeyDown(event, coordinate)}
       onClick={() => onClick(coordinate)}
+      data-state={state.kind}
+      data-color={color}
+      data-last-move={isLastMove ? '' : undefined}
+      data-previewed={isPreviewed ? '' : undefined}
     >
       <span className="visually-hidden">{color ?? (isPreviewed ? 'previewed' : 'empty')}</span>
-      <div
-        className={classes.stone}
-        aria-hidden
-        data-state={state.kind}
-        data-color={color}
-        data-last-move={isLastMove ? '' : undefined}
-        data-previewed={isPreviewed ? '' : undefined}
-      />
+      <div className={classes.stone} aria-hidden />
     </div>
   );
 }

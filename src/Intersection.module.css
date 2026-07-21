@@ -87,61 +87,61 @@
 
   /* Visual */
   transform: translate(-50%, -50%);
+}
 
-  &[data-state='empty'] {
-    /* Visual */
-    opacity: 0;
-    background: var(--current-turn-color, #000); /* an input inherited from context */
-  }
+.root[data-state='empty'] .stone {
+  /* Visual */
+  opacity: 0;
+  background: var(--current-turn-color, #000); /* an input inherited from context */
+}
 
-  &[data-previewed] {
-    /* Visual */
-    opacity: var(--preview-opacity);
-  }
+.root[data-previewed] .stone {
+  /* Visual */
+  opacity: var(--preview-opacity);
+}
 
-  &[data-state='stone'] {
-    /* Visual */
-    opacity: 1;
-  }
+.root[data-state='stone'] .stone {
+  /* Visual */
+  opacity: 1;
+}
 
-  &[data-color='black'] {
-    /* Visual */
-    background: #000;
-  }
+.root[data-color='black'] .stone {
+  /* Visual */
+  background: #000;
+}
 
-  &[data-color='white'] {
-    /* Visual */
-    background: #fff;
-  }
+.root[data-color='white'] .stone {
+  /* Visual */
+  background: #fff;
+}
 
-  &[data-last-move]::after {
-    /* Layout */
-    position: absolute;
-    top: 50%;
-    left: 50%;
+.root[data-last-move] .stone::after {
+  /* Layout */
+  position: absolute;
+  top: 50%;
+  left: 50%;
 
-    /* Box model */
-    width: 30%;
-    aspect-ratio: 1;
-    border: 1px solid rgb(255 255 255 / 70%);
-    border-radius: 50%;
+  /* Box model */
+  width: 30%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 50%;
 
-    /* Visual */
-    content: '';
-    background: #c93f36;
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 25%);
-    transform: translate(-50%, -50%);
-  }
+  /* Visual */
+  content: '';
+  background: #c93f36;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 25%);
+  transform: translate(-50%, -50%);
 }
 
 @media (hover: hover) {
-  .root:hover .stone[data-state='empty'] {
+  .root[data-state='empty']:hover .stone {
     /* Visual */
     opacity: var(--preview-opacity);
   }
 }
 
-.root:focus-visible .stone[data-state='empty'] {
+.root[data-state='empty']:focus-visible .stone {
   /* Visual */
   opacity: var(--preview-opacity);
 }

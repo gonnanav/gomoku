@@ -19,15 +19,15 @@ test('clicking places alternating stones, starting with black', async ({ page })
 });
 
 test('only the most recently placed stone is marked', async ({ page }) => {
-  const firstStone = getIntersection(page, 7, 7).locator('[data-color="black"]');
-  const secondStone = getIntersection(page, 7, 8).locator('[data-color="white"]');
+  const first = getIntersection(page, 7, 7);
+  const second = getIntersection(page, 7, 8);
 
-  await getIntersection(page, 7, 7).click();
-  await expect(firstStone).toHaveAttribute('data-last-move');
+  await first.click();
+  await expect(first).toHaveAttribute('data-last-move');
 
-  await getIntersection(page, 7, 8).click();
-  await expect(firstStone).not.toHaveAttribute('data-last-move');
-  await expect(secondStone).toHaveAttribute('data-last-move');
+  await second.click();
+  await expect(first).not.toHaveAttribute('data-last-move');
+  await expect(second).toHaveAttribute('data-last-move');
 });
 
 test('clicking an occupied intersection is ignored', async ({ page }) => {
