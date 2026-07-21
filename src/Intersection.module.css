@@ -91,17 +91,12 @@
   &[data-state='empty'] {
     /* Visual */
     opacity: 0;
+    background: var(--current-turn-color, #000); /* an input inherited from context */
   }
 
-  &[data-state='preview'] {
+  &[data-previewed='true'] {
     /* Visual */
     opacity: var(--preview-opacity);
-  }
-
-  &[data-state='empty'],
-  &[data-state='preview'] {
-    /* Visual */
-    background: var(--current-turn-color, #000); /* an input inherited from context */
   }
 
   &[data-state='stone'] {

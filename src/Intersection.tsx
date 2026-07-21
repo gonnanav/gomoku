@@ -25,6 +25,7 @@ export function Intersection({
   const edges = edgesAt(coordinate);
   const color = state.kind === 'stone' ? state.color : undefined;
   const isLastMove = state.kind === 'stone' ? state.isLastMove : undefined;
+  const isPreviewed = state.kind === 'empty' ? state.isPreviewed : undefined;
 
   return (
     <div
@@ -41,13 +42,14 @@ export function Intersection({
       onKeyDown={(event) => onKeyDown(event, coordinate)}
       onClick={() => onClick(coordinate)}
     >
-      <span className="visually-hidden">{color ?? state.kind}</span>
+      <span className="visually-hidden">{color ?? (isPreviewed ? 'previewed' : 'empty')}</span>
       <div
         className={classes.stone}
         aria-hidden
         data-state={state.kind}
         data-color={color}
         data-last-move={isLastMove}
+        data-previewed={isPreviewed}
       />
     </div>
   );

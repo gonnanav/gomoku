@@ -94,7 +94,7 @@ test.describe('on a device without hover (e.g. mobile)', () => {
     const intersection = getIntersection(page, 7, 7);
 
     await intersection.tap();
-    await expect(intersection).toHaveText('preview');
+    await expect(intersection).toHaveText('previewed');
 
     await intersection.tap();
     await expect(intersection).toHaveText('black');

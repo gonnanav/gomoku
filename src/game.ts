@@ -1,8 +1,7 @@
 export type Coordinate = { readonly row: number; readonly col: number };
 export type StoneColor = 'black' | 'white';
 export type IntersectionState =
-  | { readonly kind: 'empty' }
-  | { readonly kind: 'preview' }
+  | { readonly kind: 'empty'; readonly isPreviewed: boolean }
   | { readonly kind: 'stone'; readonly color: StoneColor; readonly isLastMove: boolean };
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
@@ -48,10 +47,8 @@ export function currentColorOf(game: GameState): StoneColor {
 }
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
-  if (isPreviewedAt(game, coordinate)) return { kind: 'preview' };
-
   const color = stoneColorAt(game, coordinate);
-  if (!color) return { kind: 'empty' };
+  if (!color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
 
   return { kind: 'stone', color, isLastMove: isLastMoveAt(game, coordinate) };
 }
