@@ -24,8 +24,8 @@ export function Intersection({
 }: IntersectionProps) {
   const edges = edgesAt(coordinate);
   const color = state.kind === 'stone' ? state.color : undefined;
-  const isLastMove = state.kind === 'stone' ? state.isLastMove : undefined;
-  const isPreviewed = state.kind === 'empty' ? state.isPreviewed : undefined;
+  const isLastMove = state.kind === 'stone' && state.isLastMove;
+  const isPreviewed = state.kind === 'empty' && state.isPreviewed;
 
   return (
     <div
@@ -48,8 +48,8 @@ export function Intersection({
         aria-hidden
         data-state={state.kind}
         data-color={color}
-        data-last-move={isLastMove}
-        data-previewed={isPreviewed}
+        data-last-move={isLastMove ? '' : undefined}
+        data-previewed={isPreviewed ? '' : undefined}
       />
     </div>
   );

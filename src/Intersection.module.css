@@ -94,7 +94,7 @@
     background: var(--current-turn-color, #000); /* an input inherited from context */
   }
 
-  &[data-previewed='true'] {
+  &[data-previewed] {
     /* Visual */
     opacity: var(--preview-opacity);
   }
@@ -114,7 +114,7 @@
     background: #fff;
   }
 
-  &[data-last-move='true']::after {
+  &[data-last-move]::after {
     /* Layout */
     position: absolute;
     top: 50%;
