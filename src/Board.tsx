@@ -14,11 +14,11 @@ import {
   placeStone,
   previewOrPlaceStone,
   stateAt,
-} from './board.ts';
+} from './game.ts';
 import classes from './Board.module.css';
 
 export function Board() {
-  const { currentColor, stateAt, placeStone, previewOrPlaceStone } = useBoard();
+  const { currentColor, stateAt, placeStone, previewOrPlaceStone } = useGame();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
@@ -68,14 +68,14 @@ export function Board() {
   );
 }
 
-type UseBoardResult = {
+type UseGameResult = {
   currentColor: StoneColor;
   stateAt: (coordinate: Coordinate) => IntersectionState;
   placeStone: (coordinate: Coordinate) => void;
   previewOrPlaceStone: (coordinate: Coordinate) => void;
 };
 
-function useBoard(): UseBoardResult {
+function useGame(): UseGameResult {
   const [game, setGame] = useState(initialGameState);
 
   return {

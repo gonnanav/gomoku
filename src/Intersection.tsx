@@ -1,6 +1,6 @@
 import { type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { type Coordinate, type IntersectionState, edgesAt, keyOf } from './board.ts';
+import { type Coordinate, type IntersectionState, edgesAt, keyOf } from './game.ts';
 import classes from './Intersection.module.css';
 
 type IntersectionProps = {

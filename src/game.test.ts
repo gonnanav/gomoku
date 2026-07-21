@@ -7,7 +7,7 @@ import {
   placeStone,
   previewOrPlaceStone,
   stateAt,
-} from './board.ts';
+} from './game.ts';
 
 describe('game state', () => {
   test('the game starts with an empty board and black to play', () => {
