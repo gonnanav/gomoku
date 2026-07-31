@@ -88,6 +88,27 @@ test('arrow keys navigate focus to adjacent intersections', async ({ page }) => 
   await expect(getIntersection(page, 7, 7)).toBeFocused();
 });
 
+test('arrow keys keep focus in place at the edges of the board', async ({ page }) => {
+  // The two opposite corners between them exercise all four edges.
+  const topLeft = getIntersection(page, 0, 0);
+  await topLeft.focus();
+
+  await page.keyboard.press('ArrowUp');
+  await expect(topLeft).toBeFocused();
+
+  await page.keyboard.press('ArrowLeft');
+  await expect(topLeft).toBeFocused();
+
+  const bottomRight = getIntersection(page, 14, 14);
+  await bottomRight.focus();
+
+  await page.keyboard.press('ArrowDown');
+  await expect(bottomRight).toBeFocused();
+
+  await page.keyboard.press('ArrowRight');
+  await expect(bottomRight).toBeFocused();
+});
+
 test.describe('on a device without hover (e.g. mobile)', () => {
   test.use({ hasTouch: true });
 
