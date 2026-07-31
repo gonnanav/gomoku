@@ -9,6 +9,8 @@ import {
   coordinatesEqual,
   currentColorOf,
   initialGameState,
+  isLastMoveAt,
+  isPreviewedAt,
   keyOf,
   nextCoordinate,
   placeStone,
@@ -18,7 +20,8 @@ import {
 import classes from './Board.module.css';
 
 export function Board() {
-  const { currentColor, stateAt, placeStone, previewOrPlaceStone } = useGame();
+  const { currentColor, stateAt, isLastMoveAt, isPreviewedAt, placeStone, previewOrPlaceStone } =
+    useGame();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
@@ -56,6 +59,8 @@ export function Board() {
             key={keyOf(coordinate)}
             coordinate={coordinate}
             state={stateAt(coordinate)}
+            isLastMove={isLastMoveAt(coordinate)}
+            isPreviewed={isPreviewedAt(coordinate)}
             tabIndex={tabIndexFor(coordinate)}
             registerElement={registerIntersection}
             onFocus={setTabStop}
@@ -71,6 +76,8 @@ export function Board() {
 type UseGameResult = {
   currentColor: StoneColor;
   stateAt: (coordinate: Coordinate) => IntersectionState;
+  isLastMoveAt: (coordinate: Coordinate) => boolean;
+  isPreviewedAt: (coordinate: Coordinate) => boolean;
   placeStone: (coordinate: Coordinate) => void;
   previewOrPlaceStone: (coordinate: Coordinate) => void;
 };
@@ -81,6 +88,8 @@ function useGame(): UseGameResult {
   return {
     currentColor: currentColorOf(game),
     stateAt: (coordinate) => stateAt(game, coordinate),
+    isLastMoveAt: (coordinate) => isLastMoveAt(game, coordinate),
+    isPreviewedAt: (coordinate) => isPreviewedAt(game, coordinate),
     placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
     previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),
   };

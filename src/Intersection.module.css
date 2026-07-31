@@ -100,17 +100,17 @@
   opacity: var(--preview-opacity);
 }
 
-.root[data-state='stone'] .stone {
+.root:not([data-state='empty']) .stone {
   /* Visual */
   opacity: 1;
 }
 
-.root[data-color='black'] .stone {
+.root[data-state='black'] .stone {
   /* Visual */
   background: #000;
 }
 
-.root[data-color='white'] .stone {
+.root[data-state='white'] .stone {
   /* Visual */
   background: #fff;
 }

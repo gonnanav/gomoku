@@ -6,6 +6,8 @@ import classes from './Intersection.module.css';
 type IntersectionProps = {
   coordinate: Coordinate;
   state: IntersectionState;
+  isLastMove: boolean;
+  isPreviewed: boolean;
   tabIndex: number;
   registerElement: (element: HTMLElement | null, coordinate: Coordinate) => void;
   onFocus: (coordinate: Coordinate) => void;
@@ -16,6 +18,8 @@ type IntersectionProps = {
 export function Intersection({
   coordinate,
   state,
+  isLastMove,
+  isPreviewed,
   tabIndex,
   registerElement,
   onFocus,
@@ -23,9 +27,6 @@ export function Intersection({
   onClick,
 }: IntersectionProps) {
   const edges = edgesAt(coordinate);
-  const color = state.kind === 'stone' ? state.color : undefined;
-  const isLastMove = state.kind === 'stone' && state.isLastMove;
-  const isPreviewed = state.kind === 'empty' && state.isPreviewed;
 
   return (
     <div
@@ -37,8 +38,7 @@ export function Intersection({
         [classes.edgeLeft]: edges.left,
       })}
       data-testid={`intersection-${keyOf(coordinate)}`}
-      data-state={state.kind}
-      data-color={color}
+      data-state={state}
       data-last-move={isLastMove ? '' : undefined}
       data-previewed={isPreviewed ? '' : undefined}
       tabIndex={tabIndex}
