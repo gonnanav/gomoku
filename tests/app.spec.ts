@@ -109,17 +109,32 @@ test('arrow keys keep focus in place at the edges of the board', async ({ page }
   await expect(bottomRight).toBeFocused();
 });
 
-test.describe('on a device without hover (e.g. mobile)', () => {
+test.describe('on a device without hover (mobile)', () => {
   test.use({ hasTouch: true });
 
   test('the first tap previews a stone and the second tap places it', async ({ page }) => {
     const intersection = getIntersection(page, 7, 7);
 
+    await expect(intersection).not.toHaveAttribute('data-previewed');
     await intersection.tap();
     await expect(intersection).toHaveAttribute('data-previewed');
+    await expect(intersection).not.toHaveAttribute('data-color');
 
     await intersection.tap();
+    await expect(intersection).not.toHaveAttribute('data-previewed');
     await expect(intersection).toHaveAttribute('data-color', 'black');
+  });
+
+  test('tapping another intersection moves the preview to it', async ({ page }) => {
+    const first = getIntersection(page, 7, 7);
+    const second = getIntersection(page, 7, 8);
+
+    await first.tap();
+    await expect(first).toHaveAttribute('data-previewed');
+
+    await second.tap();
+    await expect(first).not.toHaveAttribute('data-previewed');
+    await expect(second).toHaveAttribute('data-previewed');
   });
 });
 
