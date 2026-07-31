@@ -18,10 +18,11 @@ test('clicking places alternating stones, starting with black', async ({ page })
   await expect(third).toHaveAttribute('data-color', 'black');
 });
 
-test('only the most recently placed stone is marked', async ({ page }) => {
+test('marks the last move made', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   const second = getIntersection(page, 7, 8);
 
+  await expect(first).not.toHaveAttribute('data-last-move');
   await first.click();
   await expect(first).toHaveAttribute('data-last-move');
 
@@ -33,8 +34,8 @@ test('only the most recently placed stone is marked', async ({ page }) => {
 test('clicking an occupied intersection is ignored', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   await first.click();
-  await expect(first).toHaveAttribute('data-color', 'black');
 
+  await expect(first).toHaveAttribute('data-color', 'black');
   await first.click();
   await expect(first).toHaveAttribute('data-color', 'black');
 
