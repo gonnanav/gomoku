@@ -2,30 +2,33 @@ import { describe, expect, test } from 'vitest';
 import {
   currentColorOf,
   initialGameState,
-  isLastMoveAt,
-  isPreviewedAt,
   placeStone,
   previewOrPlaceStone,
   stateAt,
 } from './game.ts';
 
 describe('an intersection that had no stone placed on it is empty', () => {
+  const empty = expect.objectContaining({ kind: 'empty' });
+
   test('in a new game', () => {
-    expect(stateAt(initialGameState, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(initialGameState, { row: 0, col: 0 })).toEqual(empty);
   });
 
   test('when a stone was placed elsewhere', () => {
     const game = placeStone(initialGameState, { row: 0, col: 1 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual(empty);
   });
 });
 
 describe('stones are placed in alternating colors, starting with black', () => {
+  const black = expect.objectContaining({ kind: 'black' });
+  const white = expect.objectContaining({ kind: 'white' });
+
   test('when a single stone has been placed', () => {
     const game = placeStone(initialGameState, { row: 0, col: 0 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('black');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual(black);
   });
 
   test('when four stones have been placed', () => {
@@ -34,10 +37,10 @@ describe('stones are placed in alternating colors, starting with black', () => {
     game = placeStone(game, { row: 0, col: 2 });
     game = placeStone(game, { row: 0, col: 3 });
 
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('black');
-    expect(stateAt(game, { row: 0, col: 1 })).toBe('white');
-    expect(stateAt(game, { row: 0, col: 2 })).toBe('black');
-    expect(stateAt(game, { row: 0, col: 3 })).toBe('white');
+    expect(stateAt(game, { row: 0, col: 0 })).toEqual(black);
+    expect(stateAt(game, { row: 0, col: 1 })).toEqual(white);
+    expect(stateAt(game, { row: 0, col: 2 })).toEqual(black);
+    expect(stateAt(game, { row: 0, col: 3 })).toEqual(white);
   });
 });
 
@@ -68,38 +71,26 @@ describe('the turn alternates between the players, starting with black', () => {
   });
 });
 
-describe('an intersection that has the most recently placed stone is marked as the last move', () => {
+describe('an intersection that was played last is marked as the last move', () => {
   test('when it has the only stone on the board', () => {
     const game = placeStone(initialGameState, { row: 0, col: 0 });
 
-    expect(isLastMoveAt(game, { row: 0, col: 0 })).toBe(true);
+    expect(stateAt(game, { row: 0, col: 0 })).toHaveProperty('isLastMove', true);
   });
 
   test('when it has one of several stones on the board', () => {
     let game = placeStone(initialGameState, { row: 0, col: 0 });
     game = placeStone(game, { row: 0, col: 1 });
 
-    expect(isLastMoveAt(game, { row: 0, col: 1 })).toBe(true);
+    expect(stateAt(game, { row: 0, col: 1 })).toHaveProperty('isLastMove', true);
   });
 });
 
-describe('an intersection that does not have the most recently placed stone is not marked as the last move', () => {
-  test('when no moves have been made yet', () => {
-    expect(isLastMoveAt(initialGameState, { row: 0, col: 0 })).toBe(false);
-  });
+test('an intersection that was not played last is not marked as the last move', () => {
+  let game = placeStone(initialGameState, { row: 0, col: 0 });
+  game = placeStone(game, { row: 0, col: 1 });
 
-  test('when another stone was placed after it', () => {
-    let game = placeStone(initialGameState, { row: 0, col: 0 });
-    game = placeStone(game, { row: 0, col: 1 });
-
-    expect(isLastMoveAt(game, { row: 0, col: 0 })).toBe(false);
-  });
-
-  test('when it is empty', () => {
-    const game = placeStone(initialGameState, { row: 0, col: 0 });
-
-    expect(isLastMoveAt(game, { row: 0, col: 1 })).toBe(false);
-  });
+  expect(stateAt(game, { row: 0, col: 0 })).toHaveProperty('isLastMove', false);
 });
 
 test('trying to place a stone on an occupied intersection does nothing', () => {
@@ -108,40 +99,38 @@ test('trying to place a stone on an occupied intersection does nothing', () => {
   expect(placeStone(game, { row: 0, col: 0 })).toBe(game);
 });
 
-describe('previewing an intersection marks it as previewed without placing a stone', () => {
+describe('an intersection that was previewed since the last play is marked as previewed', () => {
   test('when no intersection is previewed', () => {
     const game = previewOrPlaceStone(initialGameState, { row: 0, col: 0 });
 
-    expect(isPreviewedAt(game, { row: 0, col: 0 })).toBe(true);
-    expect(stateAt(game, { row: 0, col: 0 })).toBe('empty');
+    expect(stateAt(game, { row: 0, col: 0 })).toHaveProperty('isPreviewed', true);
   });
 
   test('when another intersection is already previewed', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 0, col: 0 });
     game = previewOrPlaceStone(game, { row: 0, col: 1 });
 
-    expect(isPreviewedAt(game, { row: 0, col: 1 })).toBe(true);
-    expect(stateAt(game, { row: 0, col: 1 })).toBe('empty');
+    expect(stateAt(game, { row: 0, col: 1 })).toHaveProperty('isPreviewed', true);
   });
 });
 
 describe('an intersection that was not previewed since the last play is not marked as previewed', () => {
   test('when it has never been previewed', () => {
-    expect(isPreviewedAt(initialGameState, { row: 0, col: 0 })).toBe(false);
+    expect(stateAt(initialGameState, { row: 0, col: 0 })).toHaveProperty('isPreviewed', false);
   });
 
   test('when another intersection was previewed after it', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 0, col: 0 });
     game = previewOrPlaceStone(game, { row: 0, col: 1 });
 
-    expect(isPreviewedAt(game, { row: 0, col: 0 })).toBe(false);
+    expect(stateAt(game, { row: 0, col: 0 })).toHaveProperty('isPreviewed', false);
   });
 
   test('when a stone was placed after it was previewed', () => {
     let game = previewOrPlaceStone(initialGameState, { row: 0, col: 0 });
     game = placeStone(game, { row: 0, col: 1 });
 
-    expect(isPreviewedAt(game, { row: 0, col: 0 })).toBe(false);
+    expect(stateAt(game, { row: 0, col: 0 })).toHaveProperty('isPreviewed', false);
   });
 });
 
