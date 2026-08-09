@@ -5,7 +5,14 @@ import {
   placeStone,
   previewOrPlaceStone,
   stateAt,
+  winnerOf,
+  type Coordinate,
 } from './game.ts';
+
+// Plays the moves in order, starting from a new game.
+function play(...moves: Coordinate[]) {
+  return moves.reduce(placeStone, initialGameState);
+}
 
 describe('an intersection that had no stone placed on it is empty', () => {
   const empty = expect.objectContaining({ kind: 'empty' });
@@ -152,4 +159,108 @@ test('trying to preview an occupied intersection does nothing', () => {
   const game = placeStone(initialGameState, { row: 0, col: 0 });
 
   expect(previewOrPlaceStone(game, { row: 0, col: 0 })).toBe(game);
+});
+
+describe('the player who lines up five stones in a row wins', () => {
+  test('horizontally', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 7 },
+    );
+
+    expect(winnerOf(game)).toBe('black');
+  });
+
+  test('vertically', () => {
+    const game = play(
+      { row: 3, col: 7 }, { row: 0, col: 0 },
+      { row: 4, col: 7 }, { row: 0, col: 1 },
+      { row: 5, col: 7 }, { row: 0, col: 2 },
+      { row: 6, col: 7 }, { row: 0, col: 3 },
+      { row: 7, col: 7 },
+    );
+
+    expect(winnerOf(game)).toBe('black');
+  });
+
+  test('diagonally', () => {
+    const game = play(
+      { row: 3, col: 3 }, { row: 0, col: 0 },
+      { row: 4, col: 4 }, { row: 0, col: 1 },
+      { row: 5, col: 5 }, { row: 0, col: 2 },
+      { row: 6, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 7 },
+    );
+
+    expect(winnerOf(game)).toBe('black');
+  });
+
+  test('anti-diagonally', () => {
+    const game = play(
+      { row: 3, col: 7 }, { row: 0, col: 0 },
+      { row: 4, col: 6 }, { row: 0, col: 1 },
+      { row: 5, col: 5 }, { row: 0, col: 2 },
+      { row: 6, col: 4 }, { row: 0, col: 3 },
+      { row: 7, col: 3 },
+    );
+
+    expect(winnerOf(game)).toBe('black');
+  });
+
+  test('as white, too', () => {
+    const game = play(
+      { row: 0, col: 0 }, { row: 7, col: 3 },
+      { row: 0, col: 1 }, { row: 7, col: 4 },
+      { row: 0, col: 2 }, { row: 7, col: 5 },
+      { row: 0, col: 3 }, { row: 7, col: 6 },
+      { row: 2, col: 0 }, { row: 7, col: 7 },
+    );
+
+    expect(winnerOf(game)).toBe('white');
+  });
+
+  test('with more than five in a row', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 8 }, { row: 2, col: 0 },
+      { row: 7, col: 7 },
+    );
+
+    expect(winnerOf(game)).toBe('black');
+  });
+});
+
+describe('there is no winner while nobody has five in a row', () => {
+  test('in a new game', () => {
+    expect(winnerOf(initialGameState)).toBeNull();
+  });
+
+  test('with only four in a row', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 },
+    );
+
+    expect(winnerOf(game)).toBeNull();
+  });
+
+  test('with five stones on a line that an opposing stone splits', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 7, col: 5 },
+      { row: 7, col: 4 }, { row: 0, col: 0 },
+      { row: 7, col: 6 }, { row: 0, col: 1 },
+      { row: 7, col: 7 }, { row: 0, col: 2 },
+      { row: 7, col: 8 },
+    );
+
+    expect(winnerOf(game)).toBeNull();
+  });
 });

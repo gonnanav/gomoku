@@ -46,6 +46,32 @@ export function currentColorOf(game: GameState): StoneColor {
   return colorOfMove(game.moves.length);
 }
 
+export function winnerOf(game: GameState): StoneColor | null {
+  const lastMove = lastMoveOf(game);
+  if (!lastMove) return null;
+
+  const color = stoneColorAt(game, lastMove);
+  if (!color) return null;
+
+  const forwardSteps = [
+    [0, 1], // horizontal
+    [1, 0], // vertical
+    [1, 1], // diagonal
+    [1, -1], // anti-diagonal
+  ] as const;
+
+  const hasWon = forwardSteps.some((step) => {
+    const [rowStep, colStep] = step;
+    const backward = consecutiveStonesAfter(game, lastMove, color, [-rowStep, -colStep]);
+    const forward = consecutiveStonesAfter(game, lastMove, color, step);
+    const totalCount = backward.length + 1 + forward.length;
+
+    return totalCount >= 5;
+  });
+
+  return hasWon ? color : null;
+}
+
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
   const color = stoneColorAt(game, coordinate);
   if (!color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
@@ -109,8 +135,29 @@ function colorOfMove(moveIndex: number): StoneColor {
   return moveIndex % 2 === 0 ? 'black' : 'white';
 }
 
+function consecutiveStonesAfter(
+  game: GameState,
+  origin: Coordinate,
+  color: StoneColor,
+  [rowStep, colStep]: readonly [rowStep: number, colStep: number],
+): Coordinate[] {
+  const stones: Coordinate[] = [];
+  let coordinate = { row: origin.row + rowStep, col: origin.col + colStep };
+
+  while (stoneColorAt(game, coordinate) === color) {
+    stones.push(coordinate);
+    coordinate = { row: coordinate.row + rowStep, col: coordinate.col + colStep };
+  }
+
+  return stones;
+}
+
+function lastMoveOf(game: GameState): Coordinate | undefined {
+  return game.moves.at(-1);
+}
+
 function isLastMoveAt(game: GameState, coordinate: Coordinate): boolean {
-  const lastMove = game.moves.at(-1);
+  const lastMove = lastMoveOf(game);
 
   return lastMove !== undefined && coordinatesEqual(lastMove, coordinate);
 }
