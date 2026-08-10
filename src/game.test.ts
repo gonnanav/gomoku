@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import {
-  currentColorOf,
   initialGameState,
   placeStone,
   previewOrPlaceStone,
   stateAt,
-  winnerOf,
+  statusOf,
   type Coordinate,
 } from './game.ts';
 
@@ -53,20 +52,20 @@ describe('stones are placed in alternating colors, starting with black', () => {
 
 describe('the turn alternates between the players, starting with black', () => {
   test('in the first turn', () => {
-    expect(currentColorOf(initialGameState)).toBe('black');
+    expect(statusOf(initialGameState)).toHaveProperty('currentColor', 'black');
   });
 
   test('in the second turn', () => {
     const game = placeStone(initialGameState, { row: 0, col: 0 });
 
-    expect(currentColorOf(game)).toBe('white');
+    expect(statusOf(game)).toHaveProperty('currentColor', 'white');
   });
 
   test('in the third turn', () => {
     let game = placeStone(initialGameState, { row: 0, col: 0 });
     game = placeStone(game, { row: 0, col: 1 });
 
-    expect(currentColorOf(game)).toBe('black');
+    expect(statusOf(game)).toHaveProperty('currentColor', 'black');
   });
 
   test('in the fourth turn', () => {
@@ -74,7 +73,7 @@ describe('the turn alternates between the players, starting with black', () => {
     game = placeStone(game, { row: 0, col: 1 });
     game = placeStone(game, { row: 0, col: 2 });
 
-    expect(currentColorOf(game)).toBe('white');
+    expect(statusOf(game)).toHaveProperty('currentColor', 'white');
   });
 });
 
@@ -171,7 +170,7 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 7, col: 7 },
     );
 
-    expect(winnerOf(game)).toBe('black');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'black' });
   });
 
   test('vertically', () => {
@@ -183,7 +182,7 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 7, col: 7 },
     );
 
-    expect(winnerOf(game)).toBe('black');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'black' });
   });
 
   test('diagonally', () => {
@@ -195,7 +194,7 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 7, col: 7 },
     );
 
-    expect(winnerOf(game)).toBe('black');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'black' });
   });
 
   test('anti-diagonally', () => {
@@ -207,7 +206,7 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 7, col: 3 },
     );
 
-    expect(winnerOf(game)).toBe('black');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'black' });
   });
 
   test('as white, too', () => {
@@ -219,7 +218,7 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 2, col: 0 }, { row: 7, col: 7 },
     );
 
-    expect(winnerOf(game)).toBe('white');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'white' });
   });
 
   test('with more than five in a row', () => {
@@ -232,13 +231,32 @@ describe('the player who lines up five stones in a row wins', () => {
       { row: 7, col: 7 },
     );
 
-    expect(winnerOf(game)).toBe('black');
+    expect(statusOf(game)).toEqual({ kind: 'won', winner: 'black' });
   });
 });
 
-describe('there is no winner while nobody has five in a row', () => {
+describe('the game does not change once it has been won', () => {
+  // A game black won with five in a row on row 7.
+  const game = play(
+    { row: 7, col: 3 }, { row: 0, col: 0 },
+    { row: 7, col: 4 }, { row: 0, col: 1 },
+    { row: 7, col: 5 }, { row: 0, col: 2 },
+    { row: 7, col: 6 }, { row: 0, col: 3 },
+    { row: 7, col: 7 },
+  );
+
+  test('when trying to place a stone', () => {
+    expect(placeStone(game, { row: 5, col: 5 })).toBe(game);
+  });
+
+  test('when trying to preview an intersection', () => {
+    expect(previewOrPlaceStone(game, { row: 5, col: 5 })).toBe(game);
+  });
+});
+
+describe('the game is still playing while nobody has five in a row', () => {
   test('in a new game', () => {
-    expect(winnerOf(initialGameState)).toBeNull();
+    expect(statusOf(initialGameState)).toHaveProperty('kind', 'playing');
   });
 
   test('with only four in a row', () => {
@@ -249,7 +267,7 @@ describe('there is no winner while nobody has five in a row', () => {
       { row: 7, col: 6 },
     );
 
-    expect(winnerOf(game)).toBeNull();
+    expect(statusOf(game)).toHaveProperty('kind', 'playing');
   });
 
   test('with five stones on a line that an opposing stone splits', () => {
@@ -261,6 +279,6 @@ describe('there is no winner while nobody has five in a row', () => {
       { row: 7, col: 8 },
     );
 
-    expect(winnerOf(game)).toBeNull();
+    expect(statusOf(game)).toHaveProperty('kind', 'playing');
   });
 });

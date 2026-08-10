@@ -3,6 +3,9 @@ export type StoneColor = 'black' | 'white';
 export type IntersectionState =
   | { readonly kind: 'empty'; readonly isPreviewed: boolean }
   | { readonly kind: StoneColor; readonly isLastMove: boolean };
+export type GameStatus =
+  | { readonly kind: 'playing'; readonly currentColor: StoneColor }
+  | { readonly kind: 'won'; readonly winner: StoneColor };
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 export type GameState = {
@@ -42,34 +45,11 @@ export const initialGameState: GameState = {
   previewedStone: null,
 };
 
-export function currentColorOf(game: GameState): StoneColor {
-  return colorOfMove(game.moves.length);
-}
+export function statusOf(game: GameState): GameStatus {
+  const winner = winnerOf(game);
+  if (winner) return { kind: 'won', winner };
 
-export function winnerOf(game: GameState): StoneColor | null {
-  const lastMove = lastMoveOf(game);
-  if (!lastMove) return null;
-
-  const color = stoneColorAt(game, lastMove);
-  if (!color) return null;
-
-  const forwardSteps = [
-    [0, 1], // horizontal
-    [1, 0], // vertical
-    [1, 1], // diagonal
-    [1, -1], // anti-diagonal
-  ] as const;
-
-  const hasWon = forwardSteps.some((step) => {
-    const [rowStep, colStep] = step;
-    const backward = consecutiveStonesAfter(game, lastMove, color, [-rowStep, -colStep]);
-    const forward = consecutiveStonesAfter(game, lastMove, color, step);
-    const totalCount = backward.length + 1 + forward.length;
-
-    return totalCount >= 5;
-  });
-
-  return hasWon ? color : null;
+  return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
 }
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
@@ -80,6 +60,7 @@ export function stateAt(game: GameState, coordinate: Coordinate): IntersectionSt
 }
 
 export function placeStone(game: GameState, coordinate: Coordinate): GameState {
+  if (winnerOf(game)) return game;
   if (hasStoneAt(game, coordinate)) return game;
 
   return {
@@ -89,6 +70,7 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
 }
 
 export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): GameState {
+  if (winnerOf(game)) return game;
   if (hasStoneAt(game, coordinate)) return game;
   if (isPreviewedAt(game, coordinate)) return placeStone(game, coordinate);
 
@@ -133,6 +115,32 @@ function hasStoneAt(game: GameState, coordinate: Coordinate): boolean {
 
 function colorOfMove(moveIndex: number): StoneColor {
   return moveIndex % 2 === 0 ? 'black' : 'white';
+}
+
+function winnerOf(game: GameState): StoneColor | null {
+  const lastMove = lastMoveOf(game);
+  if (!lastMove) return null;
+
+  const color = stoneColorAt(game, lastMove);
+  if (!color) return null;
+
+  const forwardSteps = [
+    [0, 1], // horizontal
+    [1, 0], // vertical
+    [1, 1], // diagonal
+    [1, -1], // anti-diagonal
+  ] as const;
+
+  const hasWon = forwardSteps.some((step) => {
+    const [rowStep, colStep] = step;
+    const backward = consecutiveStonesAfter(game, lastMove, color, [-rowStep, -colStep]);
+    const forward = consecutiveStonesAfter(game, lastMove, color, step);
+    const totalCount = backward.length + 1 + forward.length;
+
+    return totalCount >= 5;
+  });
+
+  return hasWon ? color : null;
 }
 
 function consecutiveStonesAfter(

@@ -3,9 +3,6 @@
 
   /* Layout */
   position: relative;
-
-  /* Interaction */
-  cursor: pointer;
 }
 
 /* Lines run through each element's center, so a stone placed there sits on the intersection. */
@@ -92,7 +89,21 @@
 .root[data-state='empty'] .stone {
   /* Visual */
   opacity: 0;
-  background: var(--current-turn-color, #000); /* an input inherited from context */
+}
+
+.root[data-preview-color] {
+  /* Interaction */
+  cursor: pointer;
+}
+
+.root:is([data-preview-color='black'], [data-state='black']) .stone {
+  /* Visual */
+  background: #000;
+}
+
+.root:is([data-preview-color='white'], [data-state='white']) .stone {
+  /* Visual */
+  background: #fff;
 }
 
 .root[data-previewed] .stone {
@@ -103,16 +114,6 @@
 .root:not([data-state='empty']) .stone {
   /* Visual */
   opacity: 1;
-}
-
-.root[data-state='black'] .stone {
-  /* Visual */
-  background: #000;
-}
-
-.root[data-state='white'] .stone {
-  /* Visual */
-  background: #fff;
 }
 
 .root[data-last-move] .stone::after {
@@ -135,13 +136,13 @@
 }
 
 @media (hover: hover) {
-  .root[data-state='empty']:hover .stone {
+  .root[data-preview-color]:hover .stone {
     /* Visual */
     opacity: var(--preview-opacity);
   }
 }
 
-.root[data-state='empty']:focus-visible .stone {
+.root[data-preview-color]:focus-visible .stone {
   /* Visual */
   opacity: var(--preview-opacity);
 }

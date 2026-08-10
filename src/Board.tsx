@@ -2,24 +2,25 @@ import { useRef, useState, type KeyboardEvent } from 'react';
 import { Intersection } from './Intersection.tsx';
 import {
   type Coordinate,
+  type GameStatus,
   type IntersectionState,
-  type StoneColor,
   boardCoordinates,
   centerCoordinate,
   coordinatesEqual,
-  currentColorOf,
   initialGameState,
   keyOf,
   nextCoordinate,
   placeStone,
   previewOrPlaceStone,
   stateAt,
+  statusOf,
 } from './game.ts';
 import classes from './Board.module.css';
 
 export function Board() {
-  const { currentColor, stateAt, placeStone, previewOrPlaceStone } = useGame();
+  const { status, stateAt, placeStone, previewOrPlaceStone } = useGame();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
+  const previewColor = status.kind === 'playing' ? status.currentColor : null;
 
   function handleIntersectionKeyDown(event: KeyboardEvent, coordinate: Coordinate) {
     if (event.key === 'Enter' || event.key === ' ') {
@@ -50,12 +51,13 @@ export function Board() {
 
   return (
     <div className={classes.root}>
-      <div className={classes.board} data-current-color={currentColor}>
+      <div className={classes.board}>
         {boardCoordinates.map((coordinate) => (
           <Intersection
             key={keyOf(coordinate)}
             coordinate={coordinate}
             state={stateAt(coordinate)}
+            previewColor={previewColor}
             tabIndex={tabIndexFor(coordinate)}
             registerElement={registerIntersection}
             onFocus={setTabStop}
@@ -69,7 +71,7 @@ export function Board() {
 }
 
 type UseGameResult = {
-  currentColor: StoneColor;
+  status: GameStatus;
   stateAt: (coordinate: Coordinate) => IntersectionState;
   placeStone: (coordinate: Coordinate) => void;
   previewOrPlaceStone: (coordinate: Coordinate) => void;
@@ -79,7 +81,7 @@ function useGame(): UseGameResult {
   const [game, setGame] = useState(initialGameState);
 
   return {
-    currentColor: currentColorOf(game),
+    status: statusOf(game),
     stateAt: (coordinate) => stateAt(game, coordinate),
     placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
     previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),
