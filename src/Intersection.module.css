@@ -116,7 +116,8 @@
   opacity: 1;
 }
 
-.root[data-last-move] .stone::after {
+/* A dot at the stone's center, marking the last move or a winning stone. */
+.root:is([data-last-move], [data-winning]) .stone::after {
   /* Layout */
   position: absolute;
   top: 50%;
@@ -125,14 +126,32 @@
   /* Box model */
   width: 30%;
   aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 70%);
   border-radius: 50%;
 
   /* Visual */
   content: '';
+  transform: translate(-50%, -50%);
+}
+
+/* A winning stone gets a dot in the color contrasting with the stone itself. */
+.root[data-winning]:not([data-last-move])[data-state='black'] .stone::after {
+  /* Visual */
+  background: #fff;
+}
+
+.root[data-winning]:not([data-last-move])[data-state='white'] .stone::after {
+  /* Visual */
+  background: #000;
+}
+
+/* The last move keeps its red dot, even when it's part of the winning line. */
+.root[data-last-move] .stone::after {
+  /* Box model */
+  border: 1px solid rgb(255 255 255 / 70%);
+
+  /* Visual */
   background: #c93f36;
   box-shadow: 0 0 0 1px rgb(0 0 0 / 25%);
-  transform: translate(-50%, -50%);
 }
 
 @media (hover: hover) {

@@ -31,6 +31,27 @@ test('marks the last move made', async ({ page }) => {
   await expect(second).toHaveAttribute('data-last-move');
 });
 
+test('marks the stones of the line that won the game', async ({ page }) => {
+  await play(
+    page,
+    [7, 3], [0, 0],
+    [7, 4], [0, 1],
+    [7, 5], [0, 2],
+    [7, 6], [0, 3],
+  );
+
+  for (let col = 3; col <= 6; col++) {
+    await expect(getIntersection(page, 7, col)).not.toHaveAttribute('data-winning');
+  }
+
+  await play(page, [7, 7]);
+
+  for (let col = 3; col <= 7; col++) {
+    await expect(getIntersection(page, 7, col)).toHaveAttribute('data-winning');
+  }
+  await expect(getIntersection(page, 0, 0)).not.toHaveAttribute('data-winning');
+});
+
 test('clicking an occupied intersection is ignored', async ({ page }) => {
   const first = getIntersection(page, 7, 7);
   await first.click();
@@ -140,4 +161,8 @@ test.describe('on a device without hover (mobile)', () => {
 
 function getIntersection(page: Page, row: number, col: number) {
   return page.getByTestId(`intersection-${row},${col}`);
+}
+
+async function play(page: Page, ...moves: [row: number, col: number][]) {
+  for (const [row, col] of moves) await getIntersection(page, row, col).click();
 }

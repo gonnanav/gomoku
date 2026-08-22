@@ -27,6 +27,7 @@ export function Intersection({
   const edges = edgesAt(coordinate);
   const isLastMove = state.kind !== 'empty' && state.isLastMove;
   const isPreviewed = state.kind === 'empty' && state.isPreviewed;
+  const isWinning = state.kind !== 'empty' && state.isWinning;
 
   return (
     <div
@@ -41,6 +42,7 @@ export function Intersection({
       data-state={state.kind}
       data-last-move={isLastMove ? '' : undefined}
       data-previewed={isPreviewed ? '' : undefined}
+      data-winning={isWinning ? '' : undefined}
       data-preview-color={state.kind === 'empty' ? previewColor : undefined}
       tabIndex={tabIndex}
       onFocus={() => onFocus(coordinate)}
