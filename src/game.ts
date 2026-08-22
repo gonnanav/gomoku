@@ -2,7 +2,7 @@ export type Coordinate = { readonly row: number; readonly col: number };
 export type StoneColor = 'black' | 'white';
 export type IntersectionState =
   | { readonly kind: 'empty'; readonly isPreviewed: boolean }
-  | { readonly kind: StoneColor; readonly isLastMove: boolean };
+  | { readonly kind: StoneColor; readonly isLastMove: boolean; readonly isWinning: boolean };
 export type GameStatus =
   | { readonly kind: 'playing'; readonly currentColor: StoneColor }
   | { readonly kind: 'won'; readonly winner: StoneColor };
@@ -12,6 +12,8 @@ export type GameState = {
   readonly moves: readonly Coordinate[];
   readonly previewedStone: Coordinate | null;
 };
+
+type Move = { readonly coordinate: Coordinate; readonly color: StoneColor };
 
 const boardSize = 15; // intersections per side
 const lastIndex = boardSize - 1;
@@ -46,21 +48,32 @@ export const initialGameState: GameState = {
 };
 
 export function statusOf(game: GameState): GameStatus {
-  const winner = winnerOf(game);
-  if (winner) return { kind: 'won', winner };
+  const lastMove = lastMoveOf(game);
+  if (!lastMove || winningStonesOf(game, lastMove).size === 0) {
+    return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
+  }
 
-  return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
+  // Only the last move can complete a line, so the winner is whoever played it.
+  return { kind: 'won', winner: lastMove.color };
 }
 
 export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
+  const lastMove = lastMoveOf(game);
   const color = stoneColorAt(game, coordinate);
-  if (!color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
 
-  return { kind: color, isLastMove: isLastMoveAt(game, coordinate) };
+  if (!lastMove || !color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
+
+  const winningStones = winningStonesOf(game, lastMove);
+
+  return {
+    kind: color,
+    isLastMove: coordinatesEqual(lastMove.coordinate, coordinate),
+    isWinning: winningStones.has(keyOf(coordinate)),
+  };
 }
 
 export function placeStone(game: GameState, coordinate: Coordinate): GameState {
-  if (winnerOf(game)) return game;
+  if (isWon(game)) return game;
   if (hasStoneAt(game, coordinate)) return game;
 
   return {
@@ -70,7 +83,7 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
 }
 
 export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): GameState {
-  if (winnerOf(game)) return game;
+  if (isWon(game)) return game;
   if (hasStoneAt(game, coordinate)) return game;
   if (isPreviewedAt(game, coordinate)) return placeStone(game, coordinate);
 
@@ -95,12 +108,13 @@ export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinat
 const stonesCache = new WeakMap<readonly Coordinate[], ReadonlyMap<string, StoneColor>>();
 
 function stonesOf(game: GameState): ReadonlyMap<string, StoneColor> {
-  let stones = stonesCache.get(game.moves);
+  const cached = stonesCache.get(game.moves);
+  if (cached) return cached;
 
-  if (!stones) {
-    stones = new Map(game.moves.map((move, moveIndex) => [keyOf(move), colorOfMove(moveIndex)]));
-    stonesCache.set(game.moves, stones);
-  }
+  const stones = new Map(
+    game.moves.map((move, moveIndex) => [keyOf(move), colorOfMove(moveIndex)]),
+  );
+  stonesCache.set(game.moves, stones);
 
   return stones;
 }
@@ -117,12 +131,15 @@ function colorOfMove(moveIndex: number): StoneColor {
   return moveIndex % 2 === 0 ? 'black' : 'white';
 }
 
-function winnerOf(game: GameState): StoneColor | null {
-  const lastMove = lastMoveOf(game);
-  if (!lastMove) return null;
+// Memoized because stateAt queries it once per intersection on every render.
+const winningStonesCache = new WeakMap<readonly Coordinate[], ReadonlySet<string>>();
 
-  const color = stoneColorAt(game, lastMove);
-  if (!color) return null;
+function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
+  const cached = winningStonesCache.get(game.moves);
+  if (cached) return cached;
+
+  const winningStones = new Set<string>();
+  const { coordinate, color } = lastMove;
 
   const forwardSteps = [
     [0, 1], // horizontal
@@ -131,16 +148,24 @@ function winnerOf(game: GameState): StoneColor | null {
     [1, -1], // anti-diagonal
   ] as const;
 
-  const hasWon = forwardSteps.some((step) => {
+  for (const step of forwardSteps) {
     const [rowStep, colStep] = step;
-    const backward = consecutiveStonesAfter(game, lastMove, color, [-rowStep, -colStep]);
-    const forward = consecutiveStonesAfter(game, lastMove, color, step);
-    const totalCount = backward.length + 1 + forward.length;
+    const backward = consecutiveStonesAfter(game, coordinate, color, [-rowStep, -colStep]);
+    const forward = consecutiveStonesAfter(game, coordinate, color, step);
+    const line = [...backward, coordinate, ...forward];
 
-    return totalCount >= 5;
-  });
+    if (line.length >= 5) {
+      for (const stone of line) winningStones.add(keyOf(stone));
+    }
+  }
 
-  return hasWon ? color : null;
+  winningStonesCache.set(game.moves, winningStones);
+
+  return winningStones;
+}
+
+function isWon(game: GameState): boolean {
+  return statusOf(game).kind === 'won';
 }
 
 function consecutiveStonesAfter(
@@ -160,14 +185,11 @@ function consecutiveStonesAfter(
   return stones;
 }
 
-function lastMoveOf(game: GameState): Coordinate | undefined {
-  return game.moves.at(-1);
-}
+function lastMoveOf(game: GameState): Move | undefined {
+  const coordinate = game.moves.at(-1);
+  if (!coordinate) return undefined;
 
-function isLastMoveAt(game: GameState, coordinate: Coordinate): boolean {
-  const lastMove = lastMoveOf(game);
-
-  return lastMove !== undefined && coordinatesEqual(lastMove, coordinate);
+  return { coordinate, color: colorOfMove(game.moves.length - 1) };
 }
 
 function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {

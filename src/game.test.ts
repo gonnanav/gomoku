@@ -235,6 +235,102 @@ describe('the player who lines up five stones in a row wins', () => {
   });
 });
 
+describe('the stones of the line that won the game are marked as winning', () => {
+  test('when the line is exactly five stones long', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 7 },
+    );
+
+    for (let col = 3; col <= 7; col++) {
+      expect(stateAt(game, { row: 7, col })).toHaveProperty('isWinning', true);
+    }
+  });
+
+  test('when the line is longer than five stones', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 8 }, { row: 2, col: 0 },
+      { row: 7, col: 7 },
+    );
+
+    for (let col = 3; col <= 8; col++) {
+      expect(stateAt(game, { row: 7, col })).toHaveProperty('isWinning', true);
+    }
+  });
+
+  test('in both lines, when the winning move completed two', () => {
+    const game = play(
+      // Black takes row 7 from column 3 to column 6, one short of five.
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+
+      // Then column 7 from row 8 to row 11, also one short.
+      { row: 8, col: 7 }, { row: 2, col: 0 },
+      { row: 9, col: 7 }, { row: 2, col: 1 },
+      { row: 10, col: 7 }, { row: 2, col: 2 },
+      { row: 11, col: 7 }, { row: 2, col: 3 },
+
+      // Row 7, column 7 is where the two cross, so it completes both at once.
+      { row: 7, col: 7 },
+    );
+
+    for (let col = 3; col <= 7; col++) {
+      expect(stateAt(game, { row: 7, col })).toHaveProperty('isWinning', true);
+    }
+
+    for (let row = 7; row <= 11; row++) {
+      expect(stateAt(game, { row, col: 7 })).toHaveProperty('isWinning', true);
+    }
+  });
+});
+
+describe('a stone that is not part of the line that won the game is not marked as winning', () => {
+  test('when nobody has won yet', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 },
+    );
+
+    expect(stateAt(game, { row: 7, col: 6 })).toHaveProperty('isWinning', false);
+  });
+
+  test('when the winner played it elsewhere on the board', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 0, col: 0 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 2, col: 2 }, { row: 4, col: 0 },
+      { row: 7, col: 7 },
+    );
+
+    expect(stateAt(game, { row: 2, col: 2 })).toHaveProperty('isWinning', false);
+  });
+
+  test('when it extends the line in the opposing color', () => {
+    const game = play(
+      { row: 7, col: 3 }, { row: 7, col: 2 },
+      { row: 7, col: 4 }, { row: 0, col: 1 },
+      { row: 7, col: 5 }, { row: 0, col: 2 },
+      { row: 7, col: 6 }, { row: 0, col: 3 },
+      { row: 7, col: 7 },
+    );
+
+    expect(stateAt(game, { row: 7, col: 2 })).toHaveProperty('isWinning', false);
+  });
+});
+
 describe('the game does not change once it has been won', () => {
   // A game black won with five in a row on row 7.
   const game = play(
