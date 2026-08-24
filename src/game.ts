@@ -1,4 +1,4 @@
-export type Coordinate = { readonly row: number; readonly col: number };
+export type Coordinate = { readonly x: number; readonly y: number };
 export type StoneColor = 'black' | 'white';
 export type IntersectionState =
   | { readonly kind: 'empty'; readonly isPreviewed: boolean }
@@ -15,30 +15,37 @@ export type GameState = {
 
 type Move = { readonly coordinate: Coordinate; readonly color: StoneColor };
 
-const boardSize = 15; // intersections per side
-const lastIndex = boardSize - 1;
-const centerIndex = Math.floor(lastIndex / 2);
+const boardSize = 15; // intersections per side; odd, so the center is an intersection
+const radius = (boardSize - 1) / 2; // intersections from the center out to any edge
 
-export const centerCoordinate: Coordinate = { row: centerIndex, col: centerIndex };
+export const boardCoordinates: Coordinate[] = createBoardCoordinates();
 
-export const boardCoordinates: Coordinate[] = Array.from({ length: boardSize }, (_, row) =>
-  Array.from({ length: boardSize }, (_, col): Coordinate => ({ row, col })),
-).flat();
+function createBoardCoordinates(): Coordinate[] {
+  const coordinates: Coordinate[] = [];
 
-export function keyOf({ row, col }: Coordinate) {
-  return `${row},${col}`;
+  for (let y = radius; y >= -radius; y--) {
+    for (let x = -radius; x <= radius; x++) {
+      coordinates.push({ x, y });
+    }
+  }
+
+  return coordinates;
+}
+
+export function keyOf({ x, y }: Coordinate) {
+  return `${x},${y}`;
 }
 
 export function coordinatesEqual(a: Coordinate, b: Coordinate) {
-  return a.row === b.row && a.col === b.col;
+  return a.x === b.x && a.y === b.y;
 }
 
-export function edgesAt({ row, col }: Coordinate) {
+export function edgesAt({ x, y }: Coordinate) {
   return {
-    top: row === 0,
-    right: col === lastIndex,
-    bottom: row === lastIndex,
-    left: col === 0,
+    top: y === radius,
+    right: x === radius,
+    bottom: y === -radius,
+    left: x === -radius,
   };
 }
 
@@ -93,13 +100,13 @@ export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): Ga
 export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinate {
   switch (key) {
     case 'ArrowUp':
-      return { row: clampIndex(coordinate.row - 1), col: coordinate.col };
+      return { x: coordinate.x, y: clampToBoard(coordinate.y + 1) };
     case 'ArrowDown':
-      return { row: clampIndex(coordinate.row + 1), col: coordinate.col };
+      return { x: coordinate.x, y: clampToBoard(coordinate.y - 1) };
     case 'ArrowLeft':
-      return { row: coordinate.row, col: clampIndex(coordinate.col - 1) };
+      return { x: clampToBoard(coordinate.x - 1), y: coordinate.y };
     case 'ArrowRight':
-      return { row: coordinate.row, col: clampIndex(coordinate.col + 1) };
+      return { x: clampToBoard(coordinate.x + 1), y: coordinate.y };
   }
 }
 
@@ -142,15 +149,15 @@ function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
   const { coordinate, color } = lastMove;
 
   const forwardSteps = [
-    [0, 1], // horizontal
-    [1, 0], // vertical
+    [1, 0], // horizontal
+    [0, 1], // vertical
     [1, 1], // diagonal
     [1, -1], // anti-diagonal
   ] as const;
 
   for (const step of forwardSteps) {
-    const [rowStep, colStep] = step;
-    const backward = consecutiveStonesAfter(game, coordinate, color, [-rowStep, -colStep]);
+    const [xStep, yStep] = step;
+    const backward = consecutiveStonesAfter(game, coordinate, color, [-xStep, -yStep]);
     const forward = consecutiveStonesAfter(game, coordinate, color, step);
     const line = [...backward, coordinate, ...forward];
 
@@ -172,14 +179,14 @@ function consecutiveStonesAfter(
   game: GameState,
   origin: Coordinate,
   color: StoneColor,
-  [rowStep, colStep]: readonly [rowStep: number, colStep: number],
+  [xStep, yStep]: readonly [xStep: number, yStep: number],
 ): Coordinate[] {
   const stones: Coordinate[] = [];
-  let coordinate = { row: origin.row + rowStep, col: origin.col + colStep };
+  let coordinate = { x: origin.x + xStep, y: origin.y + yStep };
 
   while (stoneColorAt(game, coordinate) === color) {
     stones.push(coordinate);
-    coordinate = { row: coordinate.row + rowStep, col: coordinate.col + colStep };
+    coordinate = { x: coordinate.x + xStep, y: coordinate.y + yStep };
   }
 
   return stones;
@@ -196,6 +203,6 @@ function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {
   return game.previewedStone !== null && coordinatesEqual(game.previewedStone, coordinate);
 }
 
-function clampIndex(index: number): number {
-  return Math.min(Math.max(index, 0), lastIndex);
+function clampToBoard(value: number): number {
+  return Math.min(Math.max(value, -radius), radius);
 }

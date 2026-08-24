@@ -1,6 +1,6 @@
 import { type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { type Coordinate, type IntersectionState, type StoneColor, edgesAt, keyOf } from './game.ts';
+import { type Coordinate, type IntersectionState, type StoneColor, edgesAt } from './game.ts';
 import classes from './Intersection.module.css';
 
 type IntersectionProps = {
@@ -38,7 +38,7 @@ export function Intersection({
         [classes.edgeBottom]: edges.bottom,
         [classes.edgeLeft]: edges.left,
       })}
-      data-testid={`intersection-${keyOf(coordinate)}`}
+      data-testid={`intersection-(${coordinate.x},${coordinate.y})`}
       data-state={state.kind}
       data-last-move={isLastMove ? '' : undefined}
       data-previewed={isPreviewed ? '' : undefined}

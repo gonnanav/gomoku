@@ -5,7 +5,6 @@ import {
   type GameStatus,
   type IntersectionState,
   boardCoordinates,
-  centerCoordinate,
   coordinatesEqual,
   initialGameState,
   keyOf,
@@ -96,7 +95,7 @@ type UseRovingFocusResult = {
 };
 
 function useRovingFocus(): UseRovingFocusResult {
-  const [tabStop, setTabStop] = useState<Coordinate>(centerCoordinate);
+  const [tabStop, setTabStop] = useState<Coordinate>({ x: 0, y: 0 });
   const intersectionsRef = useRef(new Map<string, HTMLElement>());
 
   function registerIntersection(element: HTMLElement | null, coordinate: Coordinate) {
