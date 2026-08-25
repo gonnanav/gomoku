@@ -5,7 +5,7 @@ import {
   initialGameState,
   placeStone,
   previewOrPlaceStone,
-  stateAt,
+  statusAt,
   statusOf,
   type Coordinate,
 } from './game.ts';
@@ -19,13 +19,13 @@ describe('an intersection that had no stone placed on it is empty', () => {
   const empty = expect.objectContaining({ kind: 'empty' });
 
   test('in a new game', () => {
-    expect(stateAt(initialGameState, { x: 0, y: 0 })).toEqual(empty);
+    expect(statusAt(initialGameState, { x: 0, y: 0 })).toEqual(empty);
   });
 
   test('when a stone was placed elsewhere', () => {
     const game = placeStone(initialGameState, { x: 1, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toEqual(empty);
+    expect(statusAt(game, { x: 0, y: 0 })).toEqual(empty);
   });
 });
 
@@ -36,7 +36,7 @@ describe('stones are placed in alternating colors, starting with black', () => {
   test('when a single stone has been placed', () => {
     const game = placeStone(initialGameState, { x: 0, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toEqual(black);
+    expect(statusAt(game, { x: 0, y: 0 })).toEqual(black);
   });
 
   test('when four stones have been placed', () => {
@@ -45,10 +45,10 @@ describe('stones are placed in alternating colors, starting with black', () => {
     game = placeStone(game, { x: 2, y: 0 });
     game = placeStone(game, { x: 3, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toEqual(black);
-    expect(stateAt(game, { x: 1, y: 0 })).toEqual(white);
-    expect(stateAt(game, { x: 2, y: 0 })).toEqual(black);
-    expect(stateAt(game, { x: 3, y: 0 })).toEqual(white);
+    expect(statusAt(game, { x: 0, y: 0 })).toEqual(black);
+    expect(statusAt(game, { x: 1, y: 0 })).toEqual(white);
+    expect(statusAt(game, { x: 2, y: 0 })).toEqual(black);
+    expect(statusAt(game, { x: 3, y: 0 })).toEqual(white);
   });
 });
 
@@ -83,14 +83,14 @@ describe('an intersection that was played last is marked as the last move', () =
   test('when it has the only stone on the board', () => {
     const game = placeStone(initialGameState, { x: 0, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', true);
+    expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', true);
   });
 
   test('when it has one of several stones on the board', () => {
     let game = placeStone(initialGameState, { x: 0, y: 0 });
     game = placeStone(game, { x: 1, y: 0 });
 
-    expect(stateAt(game, { x: 1, y: 0 })).toHaveProperty('isLastMove', true);
+    expect(statusAt(game, { x: 1, y: 0 })).toHaveProperty('isLastMove', true);
   });
 });
 
@@ -98,7 +98,7 @@ test('an intersection that was not played last is not marked as the last move', 
   let game = placeStone(initialGameState, { x: 0, y: 0 });
   game = placeStone(game, { x: 1, y: 0 });
 
-  expect(stateAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', false);
+  expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', false);
 });
 
 test('trying to place a stone on an occupied intersection does nothing', () => {
@@ -111,34 +111,34 @@ describe('an intersection that was previewed since the last play is marked as pr
   test('when no intersection is previewed', () => {
     const game = previewOrPlaceStone(initialGameState, { x: 0, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', true);
+    expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', true);
   });
 
   test('when another intersection is already previewed', () => {
     let game = previewOrPlaceStone(initialGameState, { x: 0, y: 0 });
     game = previewOrPlaceStone(game, { x: 1, y: 0 });
 
-    expect(stateAt(game, { x: 1, y: 0 })).toHaveProperty('isPreviewed', true);
+    expect(statusAt(game, { x: 1, y: 0 })).toHaveProperty('isPreviewed', true);
   });
 });
 
 describe('an intersection that was not previewed since the last play is not marked as previewed', () => {
   test('when it has never been previewed', () => {
-    expect(stateAt(initialGameState, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
+    expect(statusAt(initialGameState, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
   });
 
   test('when another intersection was previewed after it', () => {
     let game = previewOrPlaceStone(initialGameState, { x: 0, y: 0 });
     game = previewOrPlaceStone(game, { x: 1, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
+    expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
   });
 
   test('when a stone was placed after it was previewed', () => {
     let game = previewOrPlaceStone(initialGameState, { x: 0, y: 0 });
     game = placeStone(game, { x: 1, y: 0 });
 
-    expect(stateAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
+    expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isPreviewed', false);
   });
 });
 
@@ -270,7 +270,7 @@ describe('the stones of the line that won the game are marked as winning', () =>
     );
 
     for (let x = 0; x <= 4; x++) {
-      expect(stateAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
+      expect(statusAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
     }
   });
 
@@ -285,7 +285,7 @@ describe('the stones of the line that won the game are marked as winning', () =>
     );
 
     for (let x = 0; x <= 5; x++) {
-      expect(stateAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
+      expect(statusAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
     }
   });
 
@@ -308,11 +308,11 @@ describe('the stones of the line that won the game are marked as winning', () =>
     );
 
     for (let x = 0; x <= 4; x++) {
-      expect(stateAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
+      expect(statusAt(game, { x, y: 0 })).toHaveProperty('isWinning', true);
     }
 
     for (let y = 0; y <= 4; y++) {
-      expect(stateAt(game, { x: 0, y })).toHaveProperty('isWinning', true);
+      expect(statusAt(game, { x: 0, y })).toHaveProperty('isWinning', true);
     }
   });
 });
@@ -326,7 +326,7 @@ describe('a stone that is not part of the line that won the game is not marked a
       { x: 3, y: 0 },
     );
 
-    expect(stateAt(game, { x: 3, y: 0 })).toHaveProperty('isWinning', false);
+    expect(statusAt(game, { x: 3, y: 0 })).toHaveProperty('isWinning', false);
   });
 
   test('when the winner played it elsewhere on the board', () => {
@@ -339,7 +339,7 @@ describe('a stone that is not part of the line that won the game is not marked a
       { x: 4, y: 0 },
     );
 
-    expect(stateAt(game, { x: 2, y: 3 })).toHaveProperty('isWinning', false);
+    expect(statusAt(game, { x: 2, y: 3 })).toHaveProperty('isWinning', false);
   });
 
   test('when it extends the line in the opposing color', () => {
@@ -351,7 +351,7 @@ describe('a stone that is not part of the line that won the game is not marked a
       { x: 4, y: 0 },
     );
 
-    expect(stateAt(game, { x: 5, y: 0 })).toHaveProperty('isWinning', false);
+    expect(statusAt(game, { x: 5, y: 0 })).toHaveProperty('isWinning', false);
   });
 });
 

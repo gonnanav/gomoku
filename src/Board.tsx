@@ -3,7 +3,7 @@ import { Intersection } from './Intersection.tsx';
 import {
   type Coordinate,
   type GameStatus,
-  type IntersectionState,
+  type IntersectionStatus,
   boardCoordinates,
   coordinatesEqual,
   initialGameState,
@@ -11,13 +11,13 @@ import {
   nextCoordinate,
   placeStone,
   previewOrPlaceStone,
-  stateAt,
+  statusAt,
   statusOf,
 } from './game.ts';
 import classes from './Board.module.css';
 
 export function Board() {
-  const { status, stateAt, placeStone, previewOrPlaceStone } = useGame();
+  const { status, statusAt, placeStone, previewOrPlaceStone } = useGame();
   const { registerIntersection, focusIntersection, tabIndexFor, setTabStop } = useRovingFocus();
   const previewColor = status.kind === 'playing' ? status.currentColor : null;
 
@@ -55,7 +55,7 @@ export function Board() {
           <Intersection
             key={keyOf(coordinate)}
             coordinate={coordinate}
-            state={stateAt(coordinate)}
+            status={statusAt(coordinate)}
             previewColor={previewColor}
             tabIndex={tabIndexFor(coordinate)}
             registerElement={registerIntersection}
@@ -71,7 +71,7 @@ export function Board() {
 
 type UseGameResult = {
   status: GameStatus;
-  stateAt: (coordinate: Coordinate) => IntersectionState;
+  statusAt: (coordinate: Coordinate) => IntersectionStatus;
   placeStone: (coordinate: Coordinate) => void;
   previewOrPlaceStone: (coordinate: Coordinate) => void;
 };
@@ -81,7 +81,7 @@ function useGame(): UseGameResult {
 
   return {
     status: statusOf(game),
-    stateAt: (coordinate) => stateAt(game, coordinate),
+    statusAt: (coordinate) => statusAt(game, coordinate),
     placeStone: (coordinate) => setGame((prev) => placeStone(prev, coordinate)),
     previewOrPlaceStone: (coordinate) => setGame((prev) => previewOrPlaceStone(prev, coordinate)),
   };

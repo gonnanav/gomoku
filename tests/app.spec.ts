@@ -7,15 +7,15 @@ test.beforeEach(async ({ page }) => {
 test('clicking places alternating stones, starting with black', async ({ page }) => {
   const first = getIntersection(page, 0, 0);
   await first.click();
-  await expect(first).toHaveAttribute('data-state', 'black');
+  await expect(first).toHaveAttribute('data-status', 'black');
 
   const second = getIntersection(page, 1, 0);
   await second.click();
-  await expect(second).toHaveAttribute('data-state', 'white');
+  await expect(second).toHaveAttribute('data-status', 'white');
 
   const third = getIntersection(page, 2, 0);
   await third.click();
-  await expect(third).toHaveAttribute('data-state', 'black');
+  await expect(third).toHaveAttribute('data-status', 'black');
 });
 
 test('marks the last move made', async ({ page }) => {
@@ -56,14 +56,14 @@ test('clicking an occupied intersection is ignored', async ({ page }) => {
   const first = getIntersection(page, 0, 0);
   await first.click();
 
-  await expect(first).toHaveAttribute('data-state', 'black');
+  await expect(first).toHaveAttribute('data-status', 'black');
   await first.click();
-  await expect(first).toHaveAttribute('data-state', 'black');
+  await expect(first).toHaveAttribute('data-status', 'black');
 
   // The ignored click didn't consume the turn: white is still the one to play
   const second = getIntersection(page, 1, 0);
   await second.click();
-  await expect(second).toHaveAttribute('data-state', 'white');
+  await expect(second).toHaveAttribute('data-status', 'white');
 });
 
 test('tab focuses the center intersection by default', async ({ page }) => {
@@ -89,7 +89,7 @@ for (const key of ['Enter', 'Space']) {
     await intersection.focus();
     await page.keyboard.press(key);
 
-    await expect(intersection).toHaveAttribute('data-state', 'black');
+    await expect(intersection).toHaveAttribute('data-status', 'black');
   });
 }
 
@@ -139,11 +139,11 @@ test.describe('on a device without hover (mobile)', () => {
     await expect(intersection).not.toHaveAttribute('data-previewed');
     await intersection.tap();
     await expect(intersection).toHaveAttribute('data-previewed');
-    await expect(intersection).toHaveAttribute('data-state', 'empty');
+    await expect(intersection).toHaveAttribute('data-status', 'empty');
 
     await intersection.tap();
     await expect(intersection).not.toHaveAttribute('data-previewed');
-    await expect(intersection).toHaveAttribute('data-state', 'black');
+    await expect(intersection).toHaveAttribute('data-status', 'black');
   });
 
   test('tapping another intersection moves the preview to it', async ({ page }) => {

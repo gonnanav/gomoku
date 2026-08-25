@@ -86,7 +86,7 @@
   transform: translate(-50%, -50%);
 }
 
-.root[data-state='empty'] .stone {
+.root[data-status='empty'] .stone {
   /* Visual */
   opacity: 0;
 }
@@ -96,12 +96,12 @@
   cursor: pointer;
 }
 
-.root:is([data-preview-color='black'], [data-state='black']) .stone {
+.root:is([data-preview-color='black'], [data-status='black']) .stone {
   /* Visual */
   background: #000;
 }
 
-.root:is([data-preview-color='white'], [data-state='white']) .stone {
+.root:is([data-preview-color='white'], [data-status='white']) .stone {
   /* Visual */
   background: #fff;
 }
@@ -111,7 +111,7 @@
   opacity: var(--preview-opacity);
 }
 
-.root:not([data-state='empty']) .stone {
+.root:not([data-status='empty']) .stone {
   /* Visual */
   opacity: 1;
 }
@@ -134,12 +134,12 @@
 }
 
 /* A winning stone gets a dot in the color contrasting with the stone itself. */
-.root[data-winning]:not([data-last-move])[data-state='black'] .stone::after {
+.root[data-winning]:not([data-last-move])[data-status='black'] .stone::after {
   /* Visual */
   background: #fff;
 }
 
-.root[data-winning]:not([data-last-move])[data-state='white'] .stone::after {
+.root[data-winning]:not([data-last-move])[data-status='white'] .stone::after {
   /* Visual */
   background: #000;
 }

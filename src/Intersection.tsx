@@ -1,11 +1,11 @@
 import { type KeyboardEvent } from 'react';
 import clsx from 'clsx';
-import { type Coordinate, type IntersectionState, type StoneColor, edgesAt } from './game.ts';
+import { type Coordinate, type IntersectionStatus, type StoneColor, edgesAt } from './game.ts';
 import classes from './Intersection.module.css';
 
 type IntersectionProps = {
   coordinate: Coordinate;
-  state: IntersectionState;
+  status: IntersectionStatus;
   previewColor: StoneColor | null;
   tabIndex: number;
   registerElement: (element: HTMLElement | null, coordinate: Coordinate) => void;
@@ -16,7 +16,7 @@ type IntersectionProps = {
 
 export function Intersection({
   coordinate,
-  state,
+  status,
   previewColor,
   tabIndex,
   registerElement,
@@ -25,9 +25,9 @@ export function Intersection({
   onClick,
 }: IntersectionProps) {
   const edges = edgesAt(coordinate);
-  const isLastMove = state.kind !== 'empty' && state.isLastMove;
-  const isPreviewed = state.kind === 'empty' && state.isPreviewed;
-  const isWinning = state.kind !== 'empty' && state.isWinning;
+  const isLastMove = status.kind !== 'empty' && status.isLastMove;
+  const isPreviewed = status.kind === 'empty' && status.isPreviewed;
+  const isWinning = status.kind !== 'empty' && status.isWinning;
 
   return (
     <div
@@ -39,11 +39,11 @@ export function Intersection({
         [classes.edgeLeft]: edges.left,
       })}
       data-testid={`intersection-(${coordinate.x},${coordinate.y})`}
-      data-state={state.kind}
+      data-status={status.kind}
       data-last-move={isLastMove ? '' : undefined}
       data-previewed={isPreviewed ? '' : undefined}
       data-winning={isWinning ? '' : undefined}
-      data-preview-color={state.kind === 'empty' ? previewColor : undefined}
+      data-preview-color={status.kind === 'empty' ? previewColor : undefined}
       tabIndex={tabIndex}
       onFocus={() => onFocus(coordinate)}
       onKeyDown={(event) => onKeyDown(event, coordinate)}

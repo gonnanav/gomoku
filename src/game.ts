@@ -1,6 +1,6 @@
 export type Coordinate = { readonly x: number; readonly y: number };
 export type StoneColor = 'black' | 'white';
-export type IntersectionState =
+export type IntersectionStatus =
   | { readonly kind: 'empty'; readonly isPreviewed: boolean }
   | { readonly kind: StoneColor; readonly isLastMove: boolean; readonly isWinning: boolean };
 export type GameStatus =
@@ -64,7 +64,7 @@ export function statusOf(game: GameState): GameStatus {
   return { kind: 'won', winner: lastMove.color };
 }
 
-export function stateAt(game: GameState, coordinate: Coordinate): IntersectionState {
+export function statusAt(game: GameState, coordinate: Coordinate): IntersectionStatus {
   const lastMove = lastMoveOf(game);
   const color = stoneColorAt(game, coordinate);
 
@@ -138,7 +138,7 @@ function colorOfMove(moveIndex: number): StoneColor {
   return moveIndex % 2 === 0 ? 'black' : 'white';
 }
 
-// Memoized because stateAt queries it once per intersection on every render.
+// Memoized because statusAt queries it once per intersection on every render.
 const winningStonesCache = new WeakMap<readonly Coordinate[], ReadonlySet<string>>();
 
 function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
