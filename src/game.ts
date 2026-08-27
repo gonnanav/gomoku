@@ -1,83 +1,14 @@
 export type Coordinate = { readonly x: number; readonly y: number };
-export type StoneColor = 'black' | 'white';
-export type IntersectionStatus =
-  | { readonly kind: 'empty'; readonly isPreviewed: boolean }
-  | { readonly kind: StoneColor; readonly isLastMove: boolean; readonly isWinning: boolean };
-export type GameStatus =
-  | { readonly kind: 'playing'; readonly currentColor: StoneColor }
-  | { readonly kind: 'won'; readonly winner: StoneColor };
-export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
 
 export type GameState = {
   readonly moves: readonly Coordinate[];
   readonly previewedStone: Coordinate | null;
 };
 
-type Move = { readonly coordinate: Coordinate; readonly color: StoneColor };
-
-const boardSize = 15; // intersections per side; odd, so the center is an intersection
-const radius = (boardSize - 1) / 2; // intersections from the center out to any edge
-
-export const boardCoordinates: Coordinate[] = createBoardCoordinates();
-
-function createBoardCoordinates(): Coordinate[] {
-  const coordinates: Coordinate[] = [];
-
-  for (let y = radius; y >= -radius; y--) {
-    for (let x = -radius; x <= radius; x++) {
-      coordinates.push({ x, y });
-    }
-  }
-
-  return coordinates;
-}
-
-export function keyOf({ x, y }: Coordinate) {
-  return `${x},${y}`;
-}
-
-export function coordinatesEqual(a: Coordinate, b: Coordinate) {
-  return a.x === b.x && a.y === b.y;
-}
-
-export function edgesAt({ x, y }: Coordinate) {
-  return {
-    top: y === radius,
-    right: x === radius,
-    bottom: y === -radius,
-    left: x === -radius,
-  };
-}
-
 export const initialGameState: GameState = {
   moves: [],
   previewedStone: null,
 };
-
-export function statusOf(game: GameState): GameStatus {
-  const lastMove = lastMoveOf(game);
-  if (!lastMove || winningStonesOf(game, lastMove).size === 0) {
-    return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
-  }
-
-  // Only the last move can complete a line, so the winner is whoever played it.
-  return { kind: 'won', winner: lastMove.color };
-}
-
-export function statusAt(game: GameState, coordinate: Coordinate): IntersectionStatus {
-  const lastMove = lastMoveOf(game);
-  const color = stoneColorAt(game, coordinate);
-
-  if (!lastMove || !color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
-
-  const winningStones = winningStonesOf(game, lastMove);
-
-  return {
-    kind: color,
-    isLastMove: coordinatesEqual(lastMove.coordinate, coordinate),
-    isWinning: winningStones.has(keyOf(coordinate)),
-  };
-}
 
 export function placeStone(game: GameState, coordinate: Coordinate): GameState {
   if (isWon(game)) return game;
@@ -97,17 +28,62 @@ export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): Ga
   return { ...game, previewedStone: coordinate };
 }
 
-export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinate {
-  switch (key) {
-    case 'ArrowUp':
-      return { x: coordinate.x, y: clampToBoard(coordinate.y + 1) };
-    case 'ArrowDown':
-      return { x: coordinate.x, y: clampToBoard(coordinate.y - 1) };
-    case 'ArrowLeft':
-      return { x: clampToBoard(coordinate.x - 1), y: coordinate.y };
-    case 'ArrowRight':
-      return { x: clampToBoard(coordinate.x + 1), y: coordinate.y };
+function isWon(game: GameState): boolean {
+  return statusOf(game).kind === 'won';
+}
+
+export type StoneColor = 'black' | 'white';
+
+export type GameStatus =
+  | { readonly kind: 'playing'; readonly currentColor: StoneColor }
+  | { readonly kind: 'won'; readonly winner: StoneColor };
+
+export function statusOf(game: GameState): GameStatus {
+  const lastMove = lastMoveOf(game);
+  if (!lastMove || winningStonesOf(game, lastMove).size === 0) {
+    return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
   }
+
+  // Only the last move can complete a line, so the winner is whoever played it.
+  return { kind: 'won', winner: lastMove.color };
+}
+
+export type IntersectionStatus =
+  | { readonly kind: 'empty'; readonly isPreviewed: boolean }
+  | { readonly kind: StoneColor; readonly isLastMove: boolean; readonly isWinning: boolean };
+
+export function statusAt(game: GameState, coordinate: Coordinate): IntersectionStatus {
+  const lastMove = lastMoveOf(game);
+  const color = stoneColorAt(game, coordinate);
+
+  if (!lastMove || !color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
+
+  const winningStones = winningStonesOf(game, lastMove);
+
+  return {
+    kind: color,
+    isLastMove: coordinatesEqual(lastMove.coordinate, coordinate),
+    isWinning: winningStones.has(keyOf(coordinate)),
+  };
+}
+
+function lastMoveOf(game: GameState): Move | undefined {
+  const coordinate = game.moves.at(-1);
+  if (!coordinate) return undefined;
+
+  return { coordinate, color: colorOfMove(game.moves.length - 1) };
+}
+
+function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {
+  return game.previewedStone !== null && coordinatesEqual(game.previewedStone, coordinate);
+}
+
+export function keyOf({ x, y }: Coordinate) {
+  return `${x},${y}`;
+}
+
+export function coordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.x === b.x && a.y === b.y;
 }
 
 // Memoizes the stones derived from a moves array, so queries cost O(1) after a
@@ -126,19 +102,20 @@ function stonesOf(game: GameState): ReadonlyMap<string, StoneColor> {
   return stones;
 }
 
-function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
-  return stonesOf(game).get(keyOf(coordinate));
-}
-
 function hasStoneAt(game: GameState, coordinate: Coordinate): boolean {
   return stonesOf(game).has(keyOf(coordinate));
+}
+
+function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
+  return stonesOf(game).get(keyOf(coordinate));
 }
 
 function colorOfMove(moveIndex: number): StoneColor {
   return moveIndex % 2 === 0 ? 'black' : 'white';
 }
 
-// Memoized because statusAt queries it once per intersection on every render.
+type Move = { readonly coordinate: Coordinate; readonly color: StoneColor };
+
 const winningStonesCache = new WeakMap<readonly Coordinate[], ReadonlySet<string>>();
 
 function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
@@ -171,10 +148,6 @@ function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
   return winningStones;
 }
 
-function isWon(game: GameState): boolean {
-  return statusOf(game).kind === 'won';
-}
-
 function consecutiveStonesAfter(
   game: GameState,
   origin: Coordinate,
@@ -192,15 +165,45 @@ function consecutiveStonesAfter(
   return stones;
 }
 
-function lastMoveOf(game: GameState): Move | undefined {
-  const coordinate = game.moves.at(-1);
-  if (!coordinate) return undefined;
+const boardSize = 15; // intersections per side; odd, so the center is an intersection
+const radius = (boardSize - 1) / 2; // intersections from the center out to any edge
 
-  return { coordinate, color: colorOfMove(game.moves.length - 1) };
+export const boardCoordinates: Coordinate[] = createBoardCoordinates();
+
+function createBoardCoordinates(): Coordinate[] {
+  const coordinates: Coordinate[] = [];
+
+  for (let y = radius; y >= -radius; y--) {
+    for (let x = -radius; x <= radius; x++) {
+      coordinates.push({ x, y });
+    }
+  }
+
+  return coordinates;
 }
 
-function isPreviewedAt(game: GameState, coordinate: Coordinate): boolean {
-  return game.previewedStone !== null && coordinatesEqual(game.previewedStone, coordinate);
+export function edgesAt({ x, y }: Coordinate) {
+  return {
+    top: y === radius,
+    right: x === radius,
+    bottom: y === -radius,
+    left: x === -radius,
+  };
+}
+
+export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
+
+export function nextCoordinate(coordinate: Coordinate, key: ArrowKey): Coordinate {
+  switch (key) {
+    case 'ArrowUp':
+      return { x: coordinate.x, y: clampToBoard(coordinate.y + 1) };
+    case 'ArrowDown':
+      return { x: coordinate.x, y: clampToBoard(coordinate.y - 1) };
+    case 'ArrowLeft':
+      return { x: clampToBoard(coordinate.x - 1), y: coordinate.y };
+    case 'ArrowRight':
+      return { x: clampToBoard(coordinate.x + 1), y: coordinate.y };
+  }
 }
 
 function clampToBoard(value: number): number {
