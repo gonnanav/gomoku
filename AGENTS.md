@@ -4,6 +4,10 @@
 
 Prefer the project's npm scripts over invoking the underlying tools directly (e.g. run `npm run typecheck`, not `npx tsc`). The scripts encode the project's intended flags, so they stay correct as configuration changes. Check the `scripts` field in `package.json` for what's available.
 
+## Commits
+
+Write commit subjects in a concise, imperative style. Include a short body when the subject alone cannot preserve useful context or reasoning. Focus on the intended behavior and the reasoning behind the change rather than enumerating technical details. Mention specific implementation choices only when they provide valuable context to a future reader, such as non-obvious rationale or tradeoffs. Avoid repeating changes and decisions that are readily understood from the diff.
+
 ## Styling
 
 - Use **CSS Modules** for component styles. Name files `*.module.css` (co-located with the component).
