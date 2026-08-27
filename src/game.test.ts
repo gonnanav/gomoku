@@ -23,7 +23,7 @@ describe('an intersection that had no stone placed on it is empty', () => {
   });
 
   test('when a stone was placed elsewhere', () => {
-    const game = placeStone(initialGameState, { x: 1, y: 0 });
+    const game = play({ x: 1, y: 0 });
 
     expect(statusAt(game, { x: 0, y: 0 })).toEqual(empty);
   });
@@ -34,16 +34,18 @@ describe('stones are placed in alternating colors, starting with black', () => {
   const white = expect.objectContaining({ kind: 'white' });
 
   test('when a single stone has been placed', () => {
-    const game = placeStone(initialGameState, { x: 0, y: 0 });
+    const game = play({ x: 0, y: 0 });
 
     expect(statusAt(game, { x: 0, y: 0 })).toEqual(black);
   });
 
   test('when four stones have been placed', () => {
-    let game = placeStone(initialGameState, { x: 0, y: 0 });
-    game = placeStone(game, { x: 1, y: 0 });
-    game = placeStone(game, { x: 2, y: 0 });
-    game = placeStone(game, { x: 3, y: 0 });
+    const game = play(
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 3, y: 0 },
+    );
 
     expect(statusAt(game, { x: 0, y: 0 })).toEqual(black);
     expect(statusAt(game, { x: 1, y: 0 })).toEqual(white);
@@ -58,22 +60,26 @@ describe('the turn alternates between the players, starting with black', () => {
   });
 
   test('in the second turn', () => {
-    const game = placeStone(initialGameState, { x: 0, y: 0 });
+    const game = play({ x: 0, y: 0 });
 
     expect(statusOf(game)).toHaveProperty('currentColor', 'white');
   });
 
   test('in the third turn', () => {
-    let game = placeStone(initialGameState, { x: 0, y: 0 });
-    game = placeStone(game, { x: 1, y: 0 });
+    const game = play(
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    );
 
     expect(statusOf(game)).toHaveProperty('currentColor', 'black');
   });
 
   test('in the fourth turn', () => {
-    let game = placeStone(initialGameState, { x: 0, y: 0 });
-    game = placeStone(game, { x: 1, y: 0 });
-    game = placeStone(game, { x: 2, y: 0 });
+    const game = play(
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+    );
 
     expect(statusOf(game)).toHaveProperty('currentColor', 'white');
   });
@@ -81,28 +87,32 @@ describe('the turn alternates between the players, starting with black', () => {
 
 describe('an intersection that was played last is marked as the last move', () => {
   test('when it has the only stone on the board', () => {
-    const game = placeStone(initialGameState, { x: 0, y: 0 });
+    const game = play({ x: 0, y: 0 });
 
     expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', true);
   });
 
   test('when it has one of several stones on the board', () => {
-    let game = placeStone(initialGameState, { x: 0, y: 0 });
-    game = placeStone(game, { x: 1, y: 0 });
+    const game = play(
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+    );
 
     expect(statusAt(game, { x: 1, y: 0 })).toHaveProperty('isLastMove', true);
   });
 });
 
 test('an intersection that was not played last is not marked as the last move', () => {
-  let game = placeStone(initialGameState, { x: 0, y: 0 });
-  game = placeStone(game, { x: 1, y: 0 });
+  const game = play(
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+  );
 
   expect(statusAt(game, { x: 0, y: 0 })).toHaveProperty('isLastMove', false);
 });
 
 test('trying to place a stone on an occupied intersection does nothing', () => {
-  const game = placeStone(initialGameState, { x: 0, y: 0 });
+  const game = play({ x: 0, y: 0 });
 
   expect(placeStone(game, { x: 0, y: 0 })).toBe(game);
 });
@@ -157,7 +167,7 @@ test('previewing and then placing a stone is the same as placing a stone directl
 });
 
 test('trying to preview an occupied intersection does nothing', () => {
-  const game = placeStone(initialGameState, { x: 0, y: 0 });
+  const game = play({ x: 0, y: 0 });
 
   expect(previewOrPlaceStone(game, { x: 0, y: 0 })).toBe(game);
 });
