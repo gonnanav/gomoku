@@ -11,8 +11,7 @@ export const initialGameState: GameState = {
 };
 
 export function placeStone(game: GameState, coordinate: Coordinate): GameState {
-  if (isWon(game)) return game;
-  if (hasStoneAt(game, coordinate)) return game;
+  if (!canPlaceStone(game, coordinate)) return game;
 
   return {
     moves: [...game.moves, coordinate],
@@ -21,15 +20,14 @@ export function placeStone(game: GameState, coordinate: Coordinate): GameState {
 }
 
 export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): GameState {
-  if (isWon(game)) return game;
-  if (hasStoneAt(game, coordinate)) return game;
+  if (!canPlaceStone(game, coordinate)) return game;
   if (isPreviewedAt(game, coordinate)) return placeStone(game, coordinate);
 
   return { ...game, previewedStone: coordinate };
 }
 
-function isWon(game: GameState): boolean {
-  return statusOf(game).kind === 'won';
+function canPlaceStone(game: GameState, coordinate: Coordinate): boolean {
+  return statusOf(game).kind === 'playing' && !stoneColorAt(game, coordinate);
 }
 
 export type StoneColor = 'black' | 'white';
@@ -100,10 +98,6 @@ function stonesOf(game: GameState): ReadonlyMap<string, StoneColor> {
   stonesCache.set(game.moves, stones);
 
   return stones;
-}
-
-function hasStoneAt(game: GameState, coordinate: Coordinate): boolean {
-  return stonesOf(game).has(keyOf(coordinate));
 }
 
 function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
