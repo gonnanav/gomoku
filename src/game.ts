@@ -27,7 +27,7 @@ export function previewOrPlaceStone(game: GameState, coordinate: Coordinate): Ga
 }
 
 function canPlaceStone(game: GameState, coordinate: Coordinate): boolean {
-  return statusOf(game).kind === 'playing' && !stoneColorAt(game, coordinate);
+  return statusOf(game).kind === 'playing' && statusAt(game, coordinate).kind === 'empty';
 }
 
 export type StoneColor = 'black' | 'white';
