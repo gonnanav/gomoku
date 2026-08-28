@@ -6,7 +6,7 @@ Prefer the project's npm scripts over invoking the underlying tools directly (e.
 
 ## Commits
 
-Write commit subjects in a concise, imperative style. Include a short body when the subject alone cannot preserve useful context or reasoning. Focus on the intended behavior and the reasoning behind the change rather than enumerating technical details. Mention specific implementation choices only when they provide valuable context to a future reader, such as non-obvious rationale or tradeoffs. Avoid repeating changes and decisions that are readily understood from the diff.
+Write commit messages in a concise, imperative style. Use a brief subject that states the intended outcome, followed by a short description of the main changes and their rationale. Keep the description focused and useful to future readers, avoiding technical details that can be easily inferred from the diff.
 
 ## Styling
 
@@ -31,4 +31,3 @@ Properties within a rule are grouped by category with a comment header. The four
 4. **Interaction** — behavior in response to user input or time: `cursor`, `transition`, `animation`, etc.
 
 Omit a group entirely if the rule has no properties for it.
-
