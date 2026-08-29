@@ -37,8 +37,9 @@ export type GameStatus =
   | { readonly kind: 'won'; readonly winner: StoneColor };
 
 export function statusOf(game: GameState): GameStatus {
-  const lastMove = lastMoveOf(game);
-  if (!lastMove || winningStonesOf(game, lastMove).size === 0) {
+  const { lastMove, winningStones } = deriveGame(game);
+
+  if (!lastMove || winningStones.size === 0) {
     return { kind: 'playing', currentColor: colorOfMove(game.moves.length) };
   }
 
@@ -51,12 +52,10 @@ export type IntersectionStatus =
   | { readonly kind: StoneColor; readonly isLastMove: boolean; readonly isWinning: boolean };
 
 export function statusAt(game: GameState, coordinate: Coordinate): IntersectionStatus {
-  const lastMove = lastMoveOf(game);
-  const color = stoneColorAt(game, coordinate);
+  const { stones, lastMove, winningStones } = deriveGame(game);
+  const color = stones.get(keyOf(coordinate));
 
   if (!lastMove || !color) return { kind: 'empty', isPreviewed: isPreviewedAt(game, coordinate) };
-
-  const winningStones = winningStonesOf(game, lastMove);
 
   return {
     kind: color,
@@ -84,24 +83,30 @@ export function coordinatesEqual(a: Coordinate, b: Coordinate) {
   return a.x === b.x && a.y === b.y;
 }
 
-// Memoizes the stones derived from a moves array, so queries cost O(1) after a
-// single O(moves) build per position instead of scanning the moves each time.
-const stonesCache = new WeakMap<readonly Coordinate[], ReadonlyMap<string, StoneColor>>();
+type DerivedGame = {
+  readonly stones: ReadonlyMap<string, StoneColor>;
+  readonly lastMove: Move | undefined;
+  readonly winningStones: ReadonlySet<string>;
+};
 
-function stonesOf(game: GameState): ReadonlyMap<string, StoneColor> {
-  const cached = stonesCache.get(game.moves);
+const derivedGameCache = new WeakMap<readonly Coordinate[], DerivedGame>();
+
+function deriveGame(game: GameState): DerivedGame {
+  const cached = derivedGameCache.get(game.moves);
   if (cached) return cached;
 
-  const stones = new Map(
-    game.moves.map((move, moveIndex) => [keyOf(move), colorOfMove(moveIndex)]),
-  );
-  stonesCache.set(game.moves, stones);
+  const stones = stonesOf(game.moves);
+  const lastMove = lastMoveOf(game);
+  const winningStones = winningStonesOf(stones, lastMove);
+  const derivedGame = { stones, lastMove, winningStones };
 
-  return stones;
+  derivedGameCache.set(game.moves, derivedGame);
+
+  return derivedGame;
 }
 
-function stoneColorAt(game: GameState, coordinate: Coordinate): StoneColor | undefined {
-  return stonesOf(game).get(keyOf(coordinate));
+function stonesOf(moves: readonly Coordinate[]): ReadonlyMap<string, StoneColor> {
+  return new Map(moves.map((move, moveIndex) => [keyOf(move), colorOfMove(moveIndex)]));
 }
 
 function colorOfMove(moveIndex: number): StoneColor {
@@ -110,13 +115,13 @@ function colorOfMove(moveIndex: number): StoneColor {
 
 type Move = { readonly coordinate: Coordinate; readonly color: StoneColor };
 
-const winningStonesCache = new WeakMap<readonly Coordinate[], ReadonlySet<string>>();
-
-function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
-  const cached = winningStonesCache.get(game.moves);
-  if (cached) return cached;
-
+function winningStonesOf(
+  stones: ReadonlyMap<string, StoneColor>,
+  lastMove: Move | undefined,
+): ReadonlySet<string> {
   const winningStones = new Set<string>();
+  if (!lastMove) return winningStones;
+
   const { coordinate, color } = lastMove;
 
   const forwardSteps = [
@@ -128,8 +133,8 @@ function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
 
   for (const step of forwardSteps) {
     const [xStep, yStep] = step;
-    const backward = consecutiveStonesAfter(game, coordinate, color, [-xStep, -yStep]);
-    const forward = consecutiveStonesAfter(game, coordinate, color, step);
+    const backward = consecutiveStonesAfter(stones, coordinate, color, [-xStep, -yStep]);
+    const forward = consecutiveStonesAfter(stones, coordinate, color, step);
     const line = [...backward, coordinate, ...forward];
 
     if (line.length >= 5) {
@@ -137,26 +142,24 @@ function winningStonesOf(game: GameState, lastMove: Move): ReadonlySet<string> {
     }
   }
 
-  winningStonesCache.set(game.moves, winningStones);
-
   return winningStones;
 }
 
 function consecutiveStonesAfter(
-  game: GameState,
+  stones: ReadonlyMap<string, StoneColor>,
   origin: Coordinate,
   color: StoneColor,
   [xStep, yStep]: readonly [xStep: number, yStep: number],
 ): Coordinate[] {
-  const stones: Coordinate[] = [];
+  const consecutiveStones: Coordinate[] = [];
   let coordinate = { x: origin.x + xStep, y: origin.y + yStep };
 
-  while (stoneColorAt(game, coordinate) === color) {
-    stones.push(coordinate);
+  while (stones.get(keyOf(coordinate)) === color) {
+    consecutiveStones.push(coordinate);
     coordinate = { x: coordinate.x + xStep, y: coordinate.y + yStep };
   }
 
-  return stones;
+  return consecutiveStones;
 }
 
 const boardSize = 15; // intersections per side; odd, so the center is an intersection
