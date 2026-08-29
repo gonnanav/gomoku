@@ -8,6 +8,10 @@ Prefer the project's npm scripts over invoking the underlying tools directly (e.
 
 Write commit messages in a concise, imperative style. Use a brief subject that states the intended outcome, followed by a short description of the main changes and their rationale. Keep the description focused and useful to future readers, avoiding technical details that can be easily inferred from the diff.
 
+## Colocation
+
+Prefer to keep related things colocated.
+
 ## Styling
 
 - Use **CSS Modules** for component styles. Name files `*.module.css` (co-located with the component).
