@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
   boardCoordinates,
-  edgesAt,
   initialGameState,
   placeStone,
   previewOrPlaceStone,
@@ -176,22 +175,6 @@ test('the board coordinates run left to right, starting with the top row', () =>
   expect(boardCoordinates.at(0)).toEqual({ x: -7, y: 7 });
   expect(boardCoordinates.at(1)).toEqual({ x: -6, y: 7 });
   expect(boardCoordinates.at(-1)).toEqual({ x: 7, y: -7 });
-});
-
-describe('only the outermost intersections lie on an edge of the board', () => {
-  const noEdges = { top: false, right: false, bottom: false, left: false };
-
-  test('the top left corner lies on the top and left edges', () => {
-    expect(edgesAt({ x: -7, y: 7 })).toEqual({ ...noEdges, top: true, left: true });
-  });
-
-  test('the bottom right corner lies on the bottom and right edges', () => {
-    expect(edgesAt({ x: 7, y: -7 })).toEqual({ ...noEdges, bottom: true, right: true });
-  });
-
-  test('the center lies on no edge', () => {
-    expect(edgesAt({ x: 0, y: 0 })).toEqual(noEdges);
-  });
 });
 
 describe('the player who lines up five stones in a row wins', () => {

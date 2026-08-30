@@ -162,7 +162,7 @@ function consecutiveStonesAfter(
   return consecutiveStones;
 }
 
-const boardSize = 15; // intersections per side; odd, so the center is an intersection
+export const boardSize = 15; // intersections per side; odd, so the center is an intersection
 const radius = (boardSize - 1) / 2; // intersections from the center out to any edge
 
 export const boardCoordinates: Coordinate[] = createBoardCoordinates();
@@ -177,15 +177,6 @@ function createBoardCoordinates(): Coordinate[] {
   }
 
   return coordinates;
-}
-
-export function edgesAt({ x, y }: Coordinate) {
-  return {
-    top: y === radius,
-    right: x === radius,
-    bottom: y === -radius,
-    left: x === -radius,
-  };
 }
 
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';

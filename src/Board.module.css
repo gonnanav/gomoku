@@ -11,22 +11,103 @@
 }
 
 .board {
-  --size: 15; /* intersections per side */
-  --board-width: min(100cqmin, 40rem);
-  --cell-width: calc(var(--board-width) / var(--size));
-  --tracks: repeat(var(--size), 1fr);
-
   /* Layout */
   display: grid;
-  grid-template-columns: var(--tracks);
-  grid-template-rows: var(--tracks);
 
   /* Box model */
-  width: var(--board-width);
+  width: min(100cqmin, 40rem);
+  padding: min(0.6cqmin, 0.25rem);
   aspect-ratio: 1;
-  padding: calc(var(--cell-width) / 2); /* half a cell, so edge stones don't touch the board edge */
   border-radius: 0.5rem;
 
   /* Visual */
   background: #dcb35c;
+}
+
+/* Three overlapping layers share a grid of half-intersection tracks. */
+.verticalLines,
+.horizontalLines,
+.intersections {
+  --tracks: repeat(calc(var(--board-size) * 2), 1fr);
+
+  /* Layout */
+  display: grid;
+  grid-area: 1 / 1;
+  grid-template-columns: var(--tracks);
+  grid-template-rows: var(--tracks);
+}
+
+/* Keep the decorative lines behind the interactive intersections. */
+.verticalLines,
+.horizontalLines {
+  /* Layout */
+  z-index: 0;
+}
+
+.intersections {
+  /* Layout */
+  z-index: 1;
+}
+
+.verticalLine,
+.horizontalLine {
+  /* Layout */
+  position: relative;
+}
+
+.verticalLine {
+  /* Layout */
+  grid-column: span 2;
+  grid-row: 2 / -2;
+}
+
+.horizontalLine {
+  /* Layout */
+  grid-column: 2 / -2;
+  grid-row: span 2;
+}
+
+/* Draw each line through the center of its two-track cell. */
+.verticalLine::after,
+.horizontalLine::after {
+  --line-thickness: 1px;
+
+  /* Layout */
+  position: absolute;
+
+  /* Visual */
+  background: #000;
+  content: '';
+}
+
+.verticalLine::after {
+  /* Layout */
+  top: 0;
+  bottom: 0;
+  left: 50%;
+
+  /* Box model */
+  width: var(--line-thickness);
+
+  /* Visual */
+  transform: translateX(-50%);
+}
+
+.horizontalLine::after {
+  /* Layout */
+  top: 50%;
+  right: 0;
+  left: 0;
+
+  /* Box model */
+  height: var(--line-thickness);
+
+  /* Visual */
+  transform: translateY(-50%);
+}
+
+/* Each intersection occupies two rows and two columns of half-sized tracks. */
+.intersection {
+  /* Layout */
+  grid-area: span 2 / span 2;
 }
