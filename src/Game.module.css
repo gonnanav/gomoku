@@ -1,0 +1,23 @@
+.root {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  gap: 0.75rem;
+
+  /* Box model */
+  padding: 0.375rem;
+}
+
+.newGameButton {
+  /* Layout */
+  align-self: end;
+}
+
+.board {
+  /* Layout */
+  flex: none;
+
+  /* Box model */
+  width: 100%;
+}

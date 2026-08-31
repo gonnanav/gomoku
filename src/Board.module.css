@@ -1,22 +1,9 @@
 .root {
   /* Layout */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  container-type: size;
-
-  /* Box model */
-  width: 100%;
-  height: 100%;
-}
-
-.board {
-  /* Layout */
   display: grid;
 
   /* Box model */
-  width: min(100cqmin, 40rem);
-  padding: min(0.6cqmin, 0.25rem);
+  padding: min(0.6%, 0.25rem);
   aspect-ratio: 1;
   border-radius: 0.5rem;
 

@@ -2,3 +2,10 @@
   /* Box model */
   height: 100dvh;
 }
+
+.game {
+  /* Box model */
+  width: min(100%, 40rem);
+  height: 100%;
+  margin: auto;
+}

@@ -66,9 +66,11 @@ test('clicking an occupied intersection is ignored', async ({ page }) => {
   await expect(second).toHaveAttribute('data-status', 'white');
 });
 
-test('tab focuses the center intersection by default', async ({ page }) => {
+test('tab reaches the new game button and then the center intersection', async ({ page }) => {
   await page.keyboard.press('Tab');
+  await expect(getNewGameButton(page)).toBeFocused();
 
+  await page.keyboard.press('Tab');
   await expect(getIntersection(page, 0, 0)).toBeFocused();
 });
 
@@ -81,6 +83,28 @@ test('tab returns to the last focused intersection', async ({ page }) => {
 
   await page.keyboard.press('Tab');
   await expect(intersection).toBeFocused();
+});
+
+test('starting a new game clears the board', async ({ page }) => {
+  const first = getIntersection(page, 0, 0);
+  const second = getIntersection(page, 1, 0);
+  await first.click();
+  await second.click();
+
+  await getNewGameButton(page).click();
+
+  await expect(first).toHaveAttribute('data-status', 'empty');
+  await expect(second).toHaveAttribute('data-status', 'empty');
+});
+
+test('starting a new game resets the board tab stop to the center', async ({ page }) => {
+  await getIntersection(page, 2, 2).focus();
+
+  await getNewGameButton(page).click();
+  await expect(getNewGameButton(page)).toBeFocused();
+
+  await page.keyboard.press('Tab');
+  await expect(getIntersection(page, 0, 0)).toBeFocused();
 });
 
 for (const key of ['Enter', 'Space']) {
@@ -158,6 +182,10 @@ test.describe('on a device without hover (mobile)', () => {
     await expect(second).toHaveAttribute('data-previewed');
   });
 });
+
+function getNewGameButton(page: Page) {
+  return page.getByRole('button', { name: 'New game' });
+}
 
 function getIntersection(page: Page, x: number, y: number) {
   return page.getByTestId(`intersection-(${x},${y})`);

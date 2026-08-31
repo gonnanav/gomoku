@@ -1,0 +1,55 @@
+.root {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  /* Box model */
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+
+  /* Visual */
+  background: #242424;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+
+  /* Interaction */
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.root:hover {
+  /* Visual */
+  background: #383838;
+}
+
+.root:active {
+  /* Visual */
+  background: #151515;
+  transform: translateY(1px);
+}
+
+.root:focus-visible {
+  /* Visual */
+  outline: 3px solid #c93f36;
+  outline-offset: 2px;
+}
+
+.icon {
+  /* Box model */
+  width: 1.125rem;
+  height: 1.125rem;
+
+  /* Visual */
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+}
