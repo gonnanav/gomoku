@@ -1,0 +1,50 @@
+.root {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  /* Box model */
+  min-height: 4.25rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid #eadfcd;
+
+  /* Visual */
+  background: #fbf7f0;
+  box-shadow: 0 0.125rem 0.75rem rgb(69 53 34 / 8%);
+}
+
+.logo {
+  /* Layout */
+  flex: none;
+
+  /* Box model */
+  width: 3rem;
+  height: 3rem;
+  border-radius: 22%;
+
+  /* Visual */
+  box-shadow: 0 0.125rem 0.375rem rgb(49 40 30 / 16%);
+}
+
+.title,
+.tagline {
+  /* Box model */
+  margin: 0;
+}
+
+.title {
+  /* Visual */
+  color: #24211d;
+  font-size: 1.375rem;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  /* Visual */
+  color: #6f6456;
+  font-size: 0.875rem;
+  line-height: 1.25;
+}
