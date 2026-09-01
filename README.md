@@ -1,6 +1,6 @@
-# Gomoku
+# Gonnoku
 
-Gomoku (five-in-a-row) on a 15×15 board. Built with React, TypeScript, and Vite.
+Gonnoku is a Gomoku (five-in-a-row) game played on a 15×15 board. Built with React, TypeScript, and Vite.
 
 ## Getting started
 

@@ -6,13 +6,13 @@ export function AppHeader() {
       <img
         className={classes.logo}
         src="/logo.png"
-        alt='' // Avoid repeating the adjacent Gomoku heading to screen readers.
+        alt='' // Avoid repeating the adjacent Gonnoku heading to screen readers.
         width="48"
         height="48"
       />
       <div>
-        <h1 className={classes.title}>Gomoku</h1>
-        <p className={classes.tagline}>Five in a row</p>
+        <h1 className={classes.title}>Gonnoku</h1>
+        <p className={classes.tagline}>Gomoku by Gonn</p>
       </div>
     </div>
   );

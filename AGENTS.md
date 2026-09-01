@@ -1,4 +1,4 @@
-# Gomoku
+# Gonnoku
 
 ## Scripts
 
