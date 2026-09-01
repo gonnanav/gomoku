@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { Board } from './Board.tsx';
+import { GameMessage } from './GameMessage.tsx';
 import { NewGameButton } from './NewGameButton.tsx';
 import {
   type Coordinate,
@@ -67,7 +68,10 @@ export function Game({ className }: GameProps) {
 
   return (
     <div className={clsx(classes.root, className)}>
-      <NewGameButton className={classes.newGameButton} onClick={handleNewGame} />
+      <div className={classes.statusBar}>
+        <GameMessage className={classes.message} status={status} />
+        <NewGameButton className={classes.newGameButton} onClick={handleNewGame} />
+      </div>
       <Board
         className={classes.board}
         status={status}

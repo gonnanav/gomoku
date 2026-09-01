@@ -4,6 +4,27 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
 
+test('shows whose turn it is', async ({ page }) => {
+  await expect(page.getByText(`Black's turn`, { exact: true })).toBeVisible();
+
+  await getIntersection(page, 0, 0).click();
+
+  await expect(page.getByText(`White's turn`, { exact: true })).toBeVisible();
+});
+
+test('shows who won the game', async ({ page }) => {
+  await play(
+    page,
+    [0, 0], [0, 7],
+    [1, 0], [1, 7],
+    [2, 0], [2, 7],
+    [3, 0], [3, 7],
+    [4, 0],
+  );
+
+  await expect(page.getByText('Black wins!', { exact: true })).toBeVisible();
+});
+
 test('clicking places alternating stones, starting with black', async ({ page }) => {
   const first = getIntersection(page, 0, 0);
   await first.click();

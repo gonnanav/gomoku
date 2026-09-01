@@ -15,7 +15,12 @@
   background: #242424;
   color: #fff;
   font: inherit;
+  font-size: 1rem;
   font-weight: 600;
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
 
   /* Interaction */
   cursor: pointer;
