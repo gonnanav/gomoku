@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "gomoku",
+  "name": "gonnoku",
   "compatibility_date": "2026-06-28",
   "observability": {
     "enabled": true
@@ -10,5 +10,11 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "routes": [
+    {
+      "pattern": "gonnoku.gonnanav.com",
+      "custom_domain": true
+    }
   ]
 }
